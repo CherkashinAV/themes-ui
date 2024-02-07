@@ -11,8 +11,8 @@ const Login = () => {
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form className="space-y-6" action="#" method="POST">
-		  <InputField type='email' label='Email'/>
-          <InputField type='password' label='Пароль'/>
+		      {/* <InputField type='email' label='Email'/>
+          <InputField type='password' label='Пароль'/> */}
           
           <div>
             <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Войти</button>
@@ -21,11 +21,11 @@ const Login = () => {
 		  <div className='w-full flex items-center flex-col'>
 		  	<p className="text-center text-sm text-gray-500">
 				Нет аккаунта?
-				<a href="#" className="font-semibold leading-6 mx-1 text-indigo-600 hover:text-indigo-500">Зарегистрируйтесь</a>
+				<a href="/" className="font-semibold leading-6 mx-1 text-indigo-600 hover:text-indigo-500">Зарегистрируйтесь</a>
 			</p>
 			<p className="text-center text-sm text-gray-500">или</p>
 			<div className="text-sm">
-				<a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">Забыли пароль?</a>
+				<a href="/" className="font-semibold text-indigo-600 hover:text-indigo-500">Забыли пароль?</a>
 			</div>
 		  </div>
         </form>
