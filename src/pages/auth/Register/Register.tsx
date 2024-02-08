@@ -1,11 +1,12 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import InputField from '../../../components/InputField'
 import Button from '../../../components/Button';
 import {RootState} from '../../../store';
 import {register, toggleCheckbox} from '../../../store/slices/registerForm';
 import {RegisterForm} from '../../../types';
 import {useAppDispatch, useAppSelector} from '../../../store/hooks';
-import {useNavigate} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
+import ErrorMessage from '../../../components/ErrorMessage';
 
 const Register = () => {
   const [inputValue, setInputValue] = useState({
@@ -21,13 +22,10 @@ const Register = () => {
   const state = useAppSelector((state: RootState)  => state.registrationForm)
   const dispatch = useAppDispatch();
 
-  if (state.registered) {
-    navigate('/auth/login');
-  }
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     dispatch(register(inputValue))
+      .then(() => navigate('/auth/login'));
   }
 
   const handleCheckbox= () => {
@@ -45,7 +43,7 @@ const Register = () => {
       </div>
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form onSubmit={handleSubmit} className="space-y-6" action="#" method="POST">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <InputField value={inputValue.email} onChange={handleInput} required name='email' type='email' placeholder='Email'/>
           <InputField value={inputValue.password} onChange={handleInput} required  name='password' type='password' placeholder='Пароль'/>
           <InputField value={inputValue.repeatPassword} onChange={handleInput} required name='repeatPassword' type='password' placeholder='Повторите пароль'/>
@@ -73,8 +71,14 @@ const Register = () => {
           <div>
             <Button type='submit' content='Зарегистрироваться'/>
           </div>
-          <div className='flex justify-center'>
-            {state.error && <p className='text-sm text-red-500 cursor-pointer'>{state.error}</p>}
+          
+          <ErrorMessage>{state.error}</ErrorMessage>
+
+          <div className='w-full flex items-center flex-col'>
+            <p className="text-center text-sm text-gray-500">
+              Уже зарегистрированы?
+              <Link to='/auth/login' className="font-semibold leading-6 mx-1 text-indigo-600 hover:text-indigo-500">Войти</Link>
+            </p>
           </div>
         </form>
       </div> 

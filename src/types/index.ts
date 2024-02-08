@@ -8,6 +8,15 @@ export type RegisterForm = {
 	patronymic: string;
 }
 
+export type LoginForm = {
+	email: string;
+	password: string;
+}
+
+export type SendEmailForm = {
+	email: string;
+}
+
 type OkResult<T = null> = {
 	ok: true,
 	value: T

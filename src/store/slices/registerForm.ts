@@ -1,20 +1,17 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {RegisterForm} from '../../types';
 import {validateRegisterFormValue} from '../../utils/validators';
-import {redirect, useNavigate} from 'react-router-dom';
 
 interface RegisterFormState {
 	checkBox: boolean,
 	loading: boolean,
 	error: string,
-	registered: boolean
 }
 
 const initialState: RegisterFormState = {
 	checkBox: true,
 	loading: false,
 	error: '',
-	registered: false
 }
 
 export const register = createAsyncThunk<string, RegisterForm, {rejectValue: string}>(
@@ -55,7 +52,6 @@ const registrationFormSlice = createSlice({
 			})
 			.addCase(register.fulfilled, (state, {payload}) => {
 				state.loading=false;
-				state.registered=true;
 			});
 	}
 });

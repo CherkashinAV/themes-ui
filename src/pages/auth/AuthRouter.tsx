@@ -10,7 +10,7 @@ const AuthRouter = () => {
       <Route path='auth'>
         <Route path='register' element={<Register/>}/>
         <Route path='login' element={<Login/>}/>
-        <Route path='recovery' element={<ForgotPassword/>}/>
+        <Route path='forgot_password' element={<ForgotPassword/>}/>
       </Route>
     </Routes>
   );
