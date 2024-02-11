@@ -1,74 +1,128 @@
-import React, {useState} from 'react'
-import InputField from '../../../components/InputField';
-import Button from '../../../components/Button';
-import {SendEmailForm} from '../../../types';
-import {RootState} from '../../../store';
+import React, {useEffect, useState} from 'react'
 import {useAppDispatch, useAppSelector} from '../../../store/hooks';
-import {sendEmail, trySendAgain} from '../../../store/slices/forgotPasswordForm';
-import ErrorMessage from '../../../components/ErrorMessage';
-import {Link} from 'react-router-dom';
+import {FieldValues, useForm} from 'react-hook-form';
+import {clearState, sendEmail} from '../../../store/slices/forgotPasswordSlice';
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  Highlight,
+  Input,
+  Link,
+  Stack,
+  Text,
+  useColorModeValue
+} from '@chakra-ui/react';
+import {Link as ReactRouterLink} from 'react-router-dom'
 
 const ForgotPassword = () => {
-  const [inputValue, setInputValue] = useState({
-    email: '',
-  } as SendEmailForm);
-
-  const state = useAppSelector((state: RootState)  => state.forgotPasswordForm)
+  const [email, setEmail] = useState('')
   const dispatch = useAppDispatch();
+  const {register, handleSubmit} = useForm();
+  const {isFetching, isSuccess, isError, errorMessage} = useAppSelector((state) => state.forgotPassword);
+  const onSubmit = ({email}: FieldValues) => {
+    dispatch(sendEmail(email));
+  };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    dispatch(sendEmail(inputValue))
-      .then();
-  }
+  useEffect(() => {
+      return () => {
+        dispatch(clearState());
+      };
+  }, []);
 
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue({...inputValue, [e.target.name]: e.target.value});
-  }
-
-  const tryAgainClickHandle = () => {
-    dispatch(trySendAgain());
-  }
+  useEffect(() => {
+    if (isError) {
+        console.log(errorMessage);
+        dispatch(clearState());
+    }
+}, [isError, isSuccess]);
 
   return (
-	  <div className='flex min-h-full flex-col justify-center px-6 py-12 lg:px-8'>
-      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900"></h2>
-      </div>
-
-      {state.emailSent ?
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm space-y-6">
-          <p className="text-center text-sm text-gray-500">
-            Письмо было отправлено на email <span className='text-indigo-600'>{inputValue.email}</span>.
-            <br/>
-            Перейдите по ссылке, чтобы восстановить пароль.
-          </p>
-          <Button onClick={tryAgainClickHandle} content='Отправить ещё раз'/>
-        </div>
-        :
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <p className="text-center text-sm text-gray-500">
-              Введите email ниже и мы отправим ссылку на восстановление пароля.
-            </p>
-            <InputField value={inputValue.email} onChange={handleInput} required name='email' type='email' placeholder='Email'/>
-            
-            <div>
-              <Button type='submit' content='Отправить'/>
-            </div>
-
-            <ErrorMessage>{state.error}</ErrorMessage>
-
-            <div className='w-full flex items-center flex-col'>
-              <p className="text-center text-sm text-gray-500">
-                Вспомнили пароль?
-              </p>
-              <Link to='/auth/login' className="text-sm font-semibold leading-6 mx-1 text-indigo-600 hover:text-indigo-500">Войти</Link>
-            </div>
-          </form>
-        </div>
-      }
-    </div>
+    <Flex
+      minH={"100vh"}
+      align={"center"}
+      justify={"center"}
+      bg={useColorModeValue("gray.50", "gray.800")}
+    >
+      <Stack spacing={8} w={"30rem"} mx={"auto"} maxW={"lg"} py={12} px={6}>
+          <Box
+            rounded={"lg"}
+            bg={useColorModeValue("white", "gray.700")}
+            boxShadow={"lg"}
+            p={8}
+          >
+          {isSuccess ? (
+              <Stack>
+                <Text textAlign={'center'}>
+                  Письмо было отправлено на email <br/>
+                  <Highlight query={email} styles={{fontWeight: 'bold', color: 'blue.500'}}>
+                    {email}
+                  </Highlight>
+                </Text>
+                <Text textAlign={'center'}>
+                  Перейдите по ссылке, чтобы восстановить пароль
+                </Text>
+              </Stack>
+            )
+            : (
+              <Stack spacing={4}>
+              <Box>
+                <Text textAlign={'center'}>Введите email ниже и мы отправим ссылку на восстановление пароля.</Text>
+              </Box>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <Stack spacing={4}>
+                  <FormControl id="email">
+                    <Input
+                      placeholder='Email'
+                      type="email"
+                      {...register('email', { pattern: /^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$/i, required: true})}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </FormControl>
+                  {isFetching ?
+                    <Button
+                      isLoading
+                      loadingText='Отправляем...'
+                      bg={"blue.400"}
+                      type="submit"
+                      w="100%"
+                      color={"white"}
+                      _hover={{
+                          bg: "blue.500"
+                      }}
+                    >
+                      Отправить ссылку
+                    </Button>
+                    :
+                    <Button
+                      bg={"blue.400"}
+                      type="submit"
+                      w="100%"
+                      color={"white"}
+                      _hover={{
+                          bg: "blue.500"
+                      }}
+                    >
+                      Отправить ссылку
+                    </Button>
+                  }
+                </Stack>
+              </form>
+              <Stack
+                justify={'center'}
+                alignItems={'center'}
+              >
+                <Text>Вспомнили пароль?</Text>
+                <Link color={'blue.500'} _hover={{color: 'blue.600'}} as={ReactRouterLink} to='/auth/login'>
+                  Войти
+                </Link>
+              </Stack>
+              </Stack>
+            )}
+        </Box>
+      </Stack>
+    </Flex>
   );
 }
 

@@ -1,14 +1,14 @@
-import {RegisterPayload} from '../providers/auth';
+import {LoginPayload, RegisterPayload} from '../providers/auth';
 import Fingerprint2 from 'fingerprintjs2'
 import UAParser from 'ua-parser-js'
-import {RegisterForm} from '../types';
+import {FieldValues} from 'react-hook-form';
 
-export function getRegisterPayload(formData: RegisterForm): RegisterPayload {
+export function getRegisterPayload(formData: FieldValues): RegisterPayload {
 	if (formData.code && formData.code !== '') {
 		return {
 			email: formData.email,
 			password: formData.password,
-			invitationCode: formData.code
+			invitationCode: formData.invitationCode
 		}
 	}
 
@@ -17,6 +17,18 @@ export function getRegisterPayload(formData: RegisterForm): RegisterPayload {
 		password: formData.password,
 		name: formData.name,
 		surname: formData.surname
+	}
+}
+
+export async function getLoginPayload(formData: FieldValues): Promise<LoginPayload> {
+	const {email, password} = formData;
+
+	const fingerprint = await getFingerPrint() ?? '';
+
+	return {
+		email,
+		password,
+		fingerprint
 	}
 }
 

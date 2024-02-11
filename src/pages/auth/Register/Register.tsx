@@ -1,88 +1,176 @@
 import React, {useEffect, useState} from 'react'
-import InputField from '../../../components/InputField'
-import Button from '../../../components/Button';
-import {RootState} from '../../../store';
-import {register, toggleCheckbox} from '../../../store/slices/registerForm';
-import {RegisterForm} from '../../../types';
+import {clearState} from '../../../store/slices/SignUpSlice';
 import {useAppDispatch, useAppSelector} from '../../../store/hooks';
-import {Link, useNavigate} from 'react-router-dom';
-import ErrorMessage from '../../../components/ErrorMessage';
+import {useNavigate} from 'react-router-dom';
+import {
+  Box,
+  Flex,
+  FormControl,
+  Button,
+  FormLabel,
+  HStack,
+  Heading,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Stack,
+  useColorModeValue,
+  Checkbox,
+  Spinner
+} from '@chakra-ui/react';
+import {ViewIcon, ViewOffIcon} from "@chakra-ui/icons";
+import {FieldValues, useForm} from 'react-hook-form';
+import {getRegisterPayload} from '../../../utils/authUtils';
+import {signUp} from '../../../store/slices/SignUpSlice';
+
 
 const Register = () => {
-  const [inputValue, setInputValue] = useState({
-    email: '',
-    password: '',
-    repeatPassword: '',
-    code: '',
-    name: '',
-    surname: '',
-    patronymic: ''
-  } as RegisterForm);
-  const navigate = useNavigate();
-  const state = useAppSelector((state: RootState)  => state.registrationForm)
+  const [showPassword, setShowPassword] = useState(false);
+  const [isChecked, setChecked] = useState(true);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const {register, handleSubmit} = useForm();
+  const {isFetching, isSuccess, isError, errorMessage} = useAppSelector((state) => state.signUp);
+  const onSubmit = (data: FieldValues) => {
+    const signUpPayload = getRegisterPayload(data)
+    dispatch(signUp(signUpPayload));
+  };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    dispatch(register(inputValue))
-      .then(() => navigate('/auth/login'));
-  }
+  useEffect(() => {
+      return () => {
+          dispatch(clearState());
+      };
+  }, []);
 
-  const handleCheckbox= () => {
-    dispatch(toggleCheckbox());
-  }
+  useEffect(() => {
+    if (isError) {
+        console.log(errorMessage);
+        dispatch(clearState());
+    }
 
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue({...inputValue, [e.target.name]: e.target.value});
-  }
+    if (isSuccess) {
+      dispatch(clearState());
+      navigate('/auth/login');
+    }
+}, [isError, isSuccess]);
 
   return (
-	  <div className='flex center min-h-full h-full flex-col justify-center px-6 py-12 lg:px-8'>
-      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Зарегистрируйтесь</h2>
-      </div>
+	  <Flex
+      minH={"100vh"}
+      align={"center"}
+      justify={"center"}
+      bg={useColorModeValue("gray.50", "gray.800")}
+    >
+      <Stack spacing={8} mx={"auto"} w={"30rem"} maxW={"lg"} py={12} px={6}>
+        <Stack align={"center"}>
+          <Heading fontSize={"4xl"} textAlign={"center"}>
+            Регистрация
+          </Heading>
+        </Stack>
+        <Box
+          rounded={"lg"}
+          bg={useColorModeValue("white", "gray.700")}
+          boxShadow={"lg"}
+          p={8}
+        >
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Stack spacing={4}>
+              <FormControl id="email" isRequired>
+                <FormLabel>Email</FormLabel>
+                <Input 
+                  type="email"
+                  {...register('email', { pattern: /^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$/i })}
+                />
+              </FormControl>
+              <FormControl id="password" isRequired>
+                <FormLabel>Пароль</FormLabel>
+                <InputGroup>
+                  <Input 
+                    type={showPassword ? "text" : "password"}
+                    {...register('password', {required: true, minLength: 6})}
+                  />
+                  <InputRightElement h={"full"}>
+                    <Button
+                      variant={"ghost"}
+                      onClick={() =>
+                        setShowPassword((showPassword) => !showPassword)
+                      }
+                    >
+                      {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
+              </FormControl>
 
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <InputField value={inputValue.email} onChange={handleInput} required name='email' type='email' placeholder='Email'/>
-          <InputField value={inputValue.password} onChange={handleInput} required  name='password' type='password' placeholder='Пароль'/>
-          <InputField value={inputValue.repeatPassword} onChange={handleInput} required name='repeatPassword' type='password' placeholder='Повторите пароль'/>
-          
-          <div className='flex gap-2'>
-            <input type='checkbox' className='accent-indigo-600' checked={state.checkBox} onChange={handleCheckbox}></input>
-            <p className='text-sm font-semibold text-indigo-600 cursor-pointer'>У меня есть код на регистрацию</p>
-          </div>
+              <Stack spacing={5} direction='row'>
+                <Checkbox 
+                  defaultChecked
+                  checked={isChecked}
+                  onChange={() => setChecked((cur) => !cur)}
+                >
+                  У меня есть код регистрации
+                </Checkbox>
+              </Stack>
 
-          {state.checkBox ?
-            <InputField value={inputValue.code} onChange={handleInput} required name='code' type='uuid' placeholder='Код приглашения'/>
-            :
-            <div className='flex justify-between shrink flex-wrap sm:w-full'>
-              <div className='sm:w-[48%]'>
-                <InputField value={inputValue.name} onChange={handleInput} type='text' name='name' required placeholder='Имя'/>
-              </div>
-              <div className='sm:w-[48%]'>
-                <InputField value={inputValue.surname} onChange={handleInput} type='text' name='surname' required placeholder='Фамилия'/>
-              </div>
-              <div className='sm:w-full'>
-                <InputField value={inputValue.patronymic} onChange={handleInput} type='text' name='patronymic' placeholder='Отчество'/>
-              </div>
-            </div>
-          }
-          <div>
-            <Button type='submit' content='Зарегистрироваться'/>
-          </div>
-          
-          <ErrorMessage>{state.error}</ErrorMessage>
-
-          <div className='w-full flex items-center flex-col'>
-            <p className="text-center text-sm text-gray-500">
-              Уже зарегистрированы?
-              <Link to='/auth/login' className="font-semibold leading-6 mx-1 text-indigo-600 hover:text-indigo-500">Войти</Link>
-            </p>
-          </div>
-        </form>
-      </div> 
-    </div>
+              {
+                isChecked ?
+                <Box>
+                  <FormControl id="invitationCode" isRequired>
+                    <FormLabel>Код приглашения</FormLabel>
+                    <Input type="text" {...register('invitationCode', {required: true})}/>
+                  </FormControl>
+                </Box> 
+                  :
+                <HStack>
+                  <Box>
+                    <FormControl id="name" isRequired>
+                      <FormLabel>Имя</FormLabel>
+                      <Input type="text" {...register('name', {required: true})}/>
+                    </FormControl>
+                  </Box>
+                  <Box>
+                    <FormControl id="surname" isRequired>
+                      <FormLabel>Фамилия</FormLabel>
+                      <Input type="text" {...register('surname', {required: true})}/>
+                    </FormControl>
+                  </Box>
+                </HStack>
+                }
+              
+              <Stack spacing={10} pt={2}>
+              {isFetching ?
+                <Button
+                  isLoading
+                  loadingText='Регистрируем...'
+                  bg={"blue.400"}
+                  type="submit"
+                  w="100%"
+                  color={"white"}
+                  _hover={{
+                      bg: "blue.500"
+                  }}
+                >
+                  Зарегистрироваться
+                </Button>
+                :
+                <Button
+                  bg={"blue.400"}
+                  type="submit"
+                  w="100%"
+                  color={"white"}
+                  _hover={{
+                      bg: "blue.500"
+                  }}
+                >
+                  Зарегистрироваться
+                </Button>
+              }
+              </Stack>
+            </Stack>
+          </form>
+        </Box>
+      </Stack>
+    </Flex>
   );
 }
 
