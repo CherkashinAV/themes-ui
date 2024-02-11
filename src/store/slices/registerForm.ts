@@ -1,6 +1,8 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {RegisterForm} from '../../types';
 import {validateRegisterFormValue} from '../../utils/validators';
+import {authProvider} from '../../providers/auth';
+import {getRegisterPayload} from '../../utils/authUtils';
 
 interface RegisterFormState {
 	checkBox: boolean,
@@ -14,7 +16,7 @@ const initialState: RegisterFormState = {
 	error: '',
 }
 
-export const register = createAsyncThunk<string, RegisterForm, {rejectValue: string}>(
+export const register = createAsyncThunk<void, RegisterForm, {rejectValue: string}>(
 	'registration/register',
 	async (formData: RegisterForm, {rejectWithValue}) => {
 		const validateResult = validateRegisterFormValue(formData);
@@ -22,11 +24,11 @@ export const register = createAsyncThunk<string, RegisterForm, {rejectValue: str
 			return rejectWithValue(validateResult.error);
 		}
 
-		try {
-			const data = await new Promise<string>((res, rej) => setTimeout(() => res('ok'), 100));
-			return data;
-		} catch(err) {
-			return rejectWithValue('Что-то пошло не так');
+		const result = await authProvider.register(getRegisterPayload(formData));
+
+		if (!result.ok) {
+			console.log(result.error.message)
+			return rejectWithValue(result.error.message);
 		}
 	}
 )
@@ -51,6 +53,7 @@ const registrationFormSlice = createSlice({
 				state.loading = true
 			})
 			.addCase(register.fulfilled, (state, {payload}) => {
+				state.error='';
 				state.loading=false;
 			});
 	}

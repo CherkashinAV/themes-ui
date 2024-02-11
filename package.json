@@ -2,21 +2,27 @@
   "name": "themes-ui",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:8080",
   "dependencies": {
     "@reduxjs/toolkit": "^2.1.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "@types/browser-fingerprint": "^0.1.2",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.79",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.18",
+    "axios": "^1.6.7",
+    "browser-fingerprint": "^0.1.0",
+    "fingerprintjs2": "^2.1.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^9.1.0",
     "react-router-dom": "^6.22.0",
     "react-scripts": "5.0.1",
     "typescript": "^4.9.5",
+    "ua-parser-js": "^1.0.37",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -44,6 +50,8 @@
     ]
   },
   "devDependencies": {
+    "@types/fingerprintjs2": "^2.0.0",
+    "@types/ua-parser-js": "^0.7.39",
     "autoprefixer": "^10.4.17",
     "postcss": "^8.4.34",
     "tailwindcss": "^3.4.1"

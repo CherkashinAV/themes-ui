@@ -7,6 +7,7 @@ import {RootState} from '../../../store';
 import Button from '../../../components/Button';
 import {login} from '../../../store/slices/loginForm';
 import ErrorMessage from '../../../components/ErrorMessage';
+import {storeToken} from '../../../store/slices/user';
 
 const Login = () => {
   const [inputValue, setInputValue] = useState({
@@ -21,7 +22,13 @@ const Login = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     dispatch(login(inputValue))
-      .then(() => navigate('/themes'));
+      .then((data) => {
+        if (data.payload && typeof data.payload !== 'string') {
+          dispatch(storeToken(data.payload.accessToken));
+        }
+
+        navigate('/auth/themes')
+      });
   }
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {

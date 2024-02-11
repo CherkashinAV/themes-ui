@@ -1,6 +1,9 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {LoginForm} from '../../types';
 import {validateLoginFormValue} from '../../utils/validators';
+import {LoginPayload, LoginResponse, authProvider} from '../../providers/auth';
+import browserFingerprint from 'browser-fingerprint';
+import {getFingerPrint} from '../../utils/authUtils';
 
 interface LoginFormState {
 	loading: boolean,
@@ -12,7 +15,7 @@ const initialState: LoginFormState = {
 	error: '',
 }
 
-export const login = createAsyncThunk<string, LoginForm, {rejectValue: string}>(
+export const login = createAsyncThunk<LoginResponse, LoginForm, {rejectValue: string}>(
 	'login/login',
 	async (formData: LoginForm, {rejectWithValue}) => {
 		const validateResult = validateLoginFormValue(formData);
@@ -20,12 +23,18 @@ export const login = createAsyncThunk<string, LoginForm, {rejectValue: string}>(
 			return rejectWithValue(validateResult.error);
 		}
 
-		try {
-			const data = await new Promise<string>((res, rej) => setTimeout(() => res('ok'), 100));
-			return data;
-		} catch(err) {
-			return rejectWithValue('Что-то пошло не так');
+		const fingerprint = await getFingerPrint();
+		console.log(fingerprint);
+		const result = await authProvider.login({
+			...formData,
+			fingerprint
+		} as LoginPayload);
+
+		if (!result.ok) {
+			return rejectWithValue(result.error.message);
 		}
+
+		return result.value;
 	}
 )
 
@@ -45,6 +54,7 @@ const loginFormSlice = createSlice({
 				state.loading = true
 			})
 			.addCase(login.fulfilled, (state, {payload}) => {
+				state.error='';
 				state.loading=false;
 			});
 	}

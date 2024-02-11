@@ -13,6 +13,13 @@ export type LoginForm = {
 	password: string;
 }
 
+export type User = {
+	userId: string;
+    expiresIn: number;
+    role: string;
+    iat: number;
+}
+
 export type SendEmailForm = {
 	email: string;
 }
@@ -28,3 +35,4 @@ type ErrorResult<T = string> = {
 };
 
 export type Result<T, E> = OkResult<T> | ErrorResult<E>;
+export type AsyncResult<T, E> = Promise<Result<T, E>>;
