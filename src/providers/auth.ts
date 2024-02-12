@@ -25,6 +25,40 @@ export type LoginResponse = {
 	refreshToken: string;
 }
 
+export type SendPasswordRestoreLinkPayload = {
+	email: string;
+	linkToResetForm: string;
+}
+
+export type ResetPasswordPayload = {
+	userId: string;
+	password: string;
+	secretCode: string;
+}
+
+export type LogoutPayload = {
+	accessToken: string;
+	fingerprint: string;
+}
+
+export type refreshTokensResponse = {
+	accessToken: string;
+	refreshToken: string;
+}
+
+export type UserInfoPayload = {
+	accessToken: string;
+	userId: string;
+}
+
+export type User = {
+	name: string;
+	surname: string;
+	email: string;
+	role: string;
+	uid: string;
+}
+
 type AuthErrorStatus = 
 	| 'BAD_REQUEST'
 	| 'NO_INVITATION_FOR_USER'
@@ -74,7 +108,7 @@ class AuthProvider {
 		accessToken?: string;
 		body?: Record<string, unknown>
 		query?: Record<string, string>
-	}): AsyncResult<AxiosResponse<T>, AuthError | Error> {
+	}): AsyncResult<AxiosResponse<T>, AuthError> {
 		const requestUrl = new URL(args.path, this._baseUrl);
 		// let response: AxiosResponse<T>;
 		try {
@@ -102,7 +136,7 @@ class AuthProvider {
 		}
 	}
 
-	async register(payload: RegisterPayload): AsyncResult<null, AuthError | Error> {
+	async register(payload: RegisterPayload): AsyncResult<null, AuthError> {
 		const result = await this._request({
 			path: 'register',
 			method: 'POST',
@@ -122,7 +156,7 @@ class AuthProvider {
 		}
 	}
 
-	async login(payload: LoginPayload): AsyncResult<LoginResponse, AuthError | Error> {
+	async login(payload: LoginPayload): AsyncResult<LoginResponse, AuthError> {
 		const result = await this._request<LoginResponse>({
 			path: 'login',
 			method: 'POST',
@@ -130,6 +164,96 @@ class AuthProvider {
 			query: {
 				partition: this._partition
 			}
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: result.value.data
+		}
+	}
+
+	async sendPasswordRestoreLink(payload: SendPasswordRestoreLinkPayload): AsyncResult<null, AuthError> {
+		const result = await this._request<LoginResponse>({
+			path: 'password_forgot',
+			method: 'POST',
+			body: payload,
+			query: {
+				partition: this._partition
+			}
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: null
+		}
+	}
+
+	async resetPassword(payload: ResetPasswordPayload): AsyncResult<null, AuthError> {
+		const result = await this._request<null>({
+			path: 'reset_password',
+			method: 'POST',
+			body: payload
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: null
+		}
+	}
+
+	async logout(payload: LogoutPayload): AsyncResult<null, AuthError> {
+		const result = await this._request<null>({
+			path: 'logout',
+			method: 'POST',
+			body: payload
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: null
+		}
+	}
+
+	async refreshTokens(fingerprint: string): AsyncResult<refreshTokensResponse, AuthError> {
+		const result = await this._request<refreshTokensResponse>({
+			path: 'refresh_tokens',
+			method: 'POST',
+			body: {fingerprint}
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		localStorage.setItem('accessToken', result.value.data.accessToken)
+
+		return {
+			ok: true,
+			value: result.value.data
+		}
+	}
+
+	async userInfo(payload: UserInfoPayload): AsyncResult<User, AuthError> {
+		const result = await this._request<User>({
+			path: 'user_info',
+			method: 'POST',
+			body: payload
 		});
 
 		if (!result.ok) {

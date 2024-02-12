@@ -1,12 +1,7 @@
-import React, {useEffect, useState} from 'react'
-import InputField from '../../../components/InputField';
-import {LoginForm} from '../../../types';
-import {Link, useNavigate} from 'react-router-dom';
+import React, {useEffect} from 'react'
+import {useNavigate} from 'react-router-dom';
 import {useAppDispatch, useAppSelector} from '../../../store/hooks';
-import {RootState} from '../../../store';
 import {clearState, login} from '../../../store/slices/LoginSlice';
-import ErrorMessage from '../../../components/ErrorMessage';
-import {storeToken} from '../../../store/slices/user';
 import {
   Box,
   Flex,
@@ -16,11 +11,9 @@ import {
   Input,
   Stack,
   useColorModeValue,
-  Button,
-  Spinner
+  Button
 } from '@chakra-ui/react';
 import {FieldValues, useForm} from 'react-hook-form';
-import {LoginPayload} from '../../../providers/auth';
 import {getLoginPayload} from '../../../utils/authUtils';
 
 const Login = () => {

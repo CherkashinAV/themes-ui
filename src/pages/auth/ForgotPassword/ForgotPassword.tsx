@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {useAppDispatch, useAppSelector} from '../../../store/hooks';
 import {FieldValues, useForm} from 'react-hook-form';
-import {clearState, sendEmail} from '../../../store/slices/forgotPasswordSlice';
+import {clearState, sendEmail} from '../../../store/slices/ForgotPasswordSlice';
 import {
   Box,
   Button,

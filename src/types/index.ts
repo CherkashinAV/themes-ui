@@ -13,15 +13,11 @@ export type LoginForm = {
 	password: string;
 }
 
-export type User = {
+export type JwtPayload = {
 	userId: string;
     expiresIn: number;
     role: string;
     iat: number;
-}
-
-export type SendEmailForm = {
-	email: string;
 }
 
 type OkResult<T = null> = {

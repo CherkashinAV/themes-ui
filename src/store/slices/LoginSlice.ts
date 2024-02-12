@@ -1,8 +1,5 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {LoginForm} from '../../types';
-import {validateLoginFormValue} from '../../utils/validators';
 import {LoginPayload, LoginResponse, authProvider} from '../../providers/auth';
-import {getFingerPrint} from '../../utils/authUtils';
 
 interface LoginState {
 	isFetching: boolean,

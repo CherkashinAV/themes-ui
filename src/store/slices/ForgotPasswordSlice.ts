@@ -1,5 +1,5 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {SendEmailForm} from '../../types';
+import {authProvider} from '../../providers/auth';
 
 interface ForgotPasswordState {
 	isFetching: boolean,
@@ -15,19 +15,21 @@ const initialState: ForgotPasswordState = {
 	errorMessage: ''
 }
 
-export const sendEmail = createAsyncThunk<string, string, {rejectValue: string}>(
+export const sendEmail = createAsyncThunk<void, string, {rejectValue: string}>(
 	'sendEmail/send',
 	async (email: string, {rejectWithValue}) => {
-		try {
-			const data = await new Promise<string>((res, rej) => setTimeout(() => res('ok'), 100));
-			return data;
-		} catch(err) {
-			return rejectWithValue('Что-то пошло не так');
+		const result = await authProvider.sendPasswordRestoreLink({
+			email,
+			linkToResetForm: 'http://localhost:3000/auth/reset_password'
+		});
+
+		if (!result.ok) {
+			return rejectWithValue(result.error.message);
 		}
 	}
 )
 
-const forgotPasswordFormSlice = createSlice({
+const forgotPasswordSlice = createSlice({
 	name: 'forgotPassword',
 	initialState,
 	reducers: {
@@ -58,6 +60,6 @@ const forgotPasswordFormSlice = createSlice({
 	}
 });
 
-export const {clearState} = forgotPasswordFormSlice.actions;
+export const {clearState} = forgotPasswordSlice.actions;
 
-export default forgotPasswordFormSlice.reducer;
+export default forgotPasswordSlice.reducer;
