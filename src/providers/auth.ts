@@ -1,5 +1,5 @@
 import {AsyncResult} from '../types';
-import axios, {AxiosError, AxiosResponse, Method} from 'axios';
+import axios, {AxiosResponse, Method} from 'axios';
 
 export type RegisterPayload = {
 	email: string;
@@ -41,21 +41,32 @@ export type LogoutPayload = {
 	fingerprint: string;
 }
 
-export type refreshTokensResponse = {
+export type Tokens = {
 	accessToken: string;
 	refreshToken: string;
 }
 
+export type refreshTokensResponse = {
+	status: 'ok',
+	data: Tokens
+}
+
 export type UserInfoPayload = {
 	accessToken: string;
-	userId: string;
 }
+
+export type UserInfoResponse = {
+	ok: 'true',
+	data: User
+}
+
+export type Role = 'default' | 'mentor' | 'moderator';
 
 export type User = {
 	name: string;
 	surname: string;
 	email: string;
-	role: string;
+	role: Role;
 	uid: string;
 }
 
@@ -116,11 +127,12 @@ class AuthProvider {
 				method: args.method,
 				url: requestUrl.toString(),
 				headers: {
-					'Authorization': `Bearer ${args.accessToken}`,
+					'Authorization': `Bearer ${args.accessToken}`
 				},
 				data: args.body,
 				params: args.query,
-				responseType: 'json'
+				responseType: 'json',
+				withCredentials: true,
 			});
 
 			return {
@@ -230,7 +242,7 @@ class AuthProvider {
 		}
 	}
 
-	async refreshTokens(fingerprint: string): AsyncResult<refreshTokensResponse, AuthError> {
+	async refreshTokens(fingerprint: string): AsyncResult<Tokens, AuthError> {
 		const result = await this._request<refreshTokensResponse>({
 			path: 'refresh_tokens',
 			method: 'POST',
@@ -241,16 +253,16 @@ class AuthProvider {
 			return result;
 		}
 
-		localStorage.setItem('accessToken', result.value.data.accessToken)
+		localStorage.setItem('accessToken', result.value.data.data.accessToken)
 
 		return {
 			ok: true,
-			value: result.value.data
+			value: result.value.data.data
 		}
 	}
 
 	async userInfo(payload: UserInfoPayload): AsyncResult<User, AuthError> {
-		const result = await this._request<User>({
+		const result = await this._request<UserInfoResponse>({
 			path: 'user_info',
 			method: 'POST',
 			body: payload
@@ -262,7 +274,7 @@ class AuthProvider {
 
 		return {
 			ok: true,
-			value: result.value.data
+			value: result.value.data.data
 		}
 	}
 }

@@ -1,4 +1,4 @@
-import {LoginPayload, RegisterPayload} from '../providers/auth';
+import {LoginPayload, RegisterPayload, Role} from '../providers/auth';
 import Fingerprint2 from 'fingerprintjs2'
 import UAParser from 'ua-parser-js'
 import {FieldValues} from 'react-hook-form';
@@ -66,3 +66,13 @@ export const getFingerPrint = async () => {
 	  console.error(e);
 	}
 };
+
+export const matchRole = (role: Role | undefined) => {
+	const matcher: Record<string, string> = {
+		'default': 'Разработчик',
+		'mentor': 'Руководитель',
+		'moderator': 'Модератор организации'
+	}
+
+	return matcher[role ?? 'default'];
+}

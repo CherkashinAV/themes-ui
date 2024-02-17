@@ -1,40 +1,49 @@
 import {useEffect, useState} from 'react';
-import {useAppDispatch} from '../store/hooks';
+import {useAppDispatch, useAppSelector} from '../store/hooks';
 import {parseJwt} from '../utils';
 import {JwtPayload} from '../types';
 import {authProvider} from '../providers/auth';
 import {getFingerPrint} from '../utils/authUtils';
-import {logout} from '../store/slices/user';
+import {getUserInfo} from '../store/slices/User';
 import {useNavigate} from 'react-router-dom';
 
-export const useRefreshToken = () => {
+export const useAuth = () => {
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
-	const [isFresh, setIsFresh] = useState(false);
+	const state = useAppSelector((state) => state.user);
+	const [isLoading, setIsLoading] = useState(true);
+	const [isError, setIsError] = useState(false);
 	
 	useEffect(() => {
 		const verifyTokens = async () => {
 			const accessToken = localStorage.getItem('accessToken') ?? '';
-			const fingerprint = await getFingerPrint() ?? '';
 
 			let jwtInfo = parseJwt<JwtPayload>(accessToken);
 
-			if(!jwtInfo || jwtInfo.expiresIn > Date.now() - 10_000) {
+			if(!jwtInfo || jwtInfo.expiresIn < (Date.now() - 10_000)) {
+				const fingerprint = await getFingerPrint() ?? '';
 				const refreshResult = await authProvider.refreshTokens(fingerprint);
 
 				if (!refreshResult.ok) {
-					if (refreshResult.error.status === 'TOKEN_EXPIRED') {
-						dispatch(logout());
-						navigate('/auth/login');
-					}
+					setIsError(true);
 					return;
 				}
 			}
-			setIsFresh(true);
+
+			if (!state.userInfo) {
+				await dispatch(getUserInfo());
+			}
+			setIsLoading(false);
 		}
 
 		verifyTokens();
-	}, []);
+	});
 
-	return isFresh;
+	useEffect(() => {
+		if (isError) {
+			navigate('/auth/login')
+		}
+	}, [isError])
+
+	return isLoading;
 }

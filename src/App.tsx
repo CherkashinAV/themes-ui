@@ -4,6 +4,7 @@ import PrivateRoute from './components/PrivateRoute';
 import Register from './pages/auth/Register/Register';
 import Login from './pages/auth/Login/Login';
 import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword';
+import Profile from './pages/profile/Profile/Profile';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         </Route>
         <Route element={<PrivateRoute/>}>
             <Route path="/home"/>
+            <Route path="/profile" element={<Profile/>}/>
         </Route>
       </Routes>
     </BrowserRouter>

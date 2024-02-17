@@ -1,9 +1,7 @@
 import {PayloadAction, createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {JwtPayload} from '../../types';
 import {parseJwt} from '../../utils';
 import {getFingerPrint} from '../../utils/authUtils';
 import {User, authProvider} from '../../providers/auth';
-import {cookieStorageManager} from '@chakra-ui/react';
 
 interface UserState {
 	userInfo: User | null,
@@ -36,9 +34,8 @@ export const getUserInfo = createAsyncThunk<User, undefined, {rejectValue: strin
 	'user/userInfo',
 	async (_, {rejectWithValue}) => {
 		const accessToken = localStorage.getItem('accessToken') ?? '';
-		const {userId} = await parseJwt<JwtPayload>(accessToken) ?? {userId: ''}
 
-		const result = await authProvider.userInfo({accessToken, userId});
+		const result = await authProvider.userInfo({accessToken});
 
 		if (!result.ok) {
 			return rejectWithValue(result.error.message);
@@ -63,6 +60,11 @@ const userSlice = createSlice({
 			.addCase(logout.fulfilled, (state) => {
 				state.userInfo = null;
 				localStorage.removeItem('accessToken');
+			})
+			.addCase(getUserInfo.fulfilled, (state, {payload}) => {
+				if (payload) {
+					state.userInfo = payload
+				}
 			})
 	}
 });

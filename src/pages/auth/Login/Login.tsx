@@ -41,7 +41,7 @@ const Login = () => {
 
     if (isSuccess) {
       dispatch(clearState());
-      navigate('/home');
+      navigate('/profile');
     }
   }, [isError, isSuccess]);
 
