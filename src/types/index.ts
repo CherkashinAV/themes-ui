@@ -1,3 +1,5 @@
+import {Role} from '../providers/auth';
+
 export type RegisterForm = {
 	email: string;
 	password: string;
@@ -18,6 +20,25 @@ export type JwtPayload = {
     expiresIn: number;
     role: string;
     iat: number;
+}
+
+export type Organization = {
+	id: number;
+	uid: string;
+	shortName: string;
+	fullName: string;
+	description: string;
+	attributes: unknown;
+}
+
+export type User = {
+	name: string;
+	surname: string;
+	email: string;
+	role: Role;
+	uid: string;
+	description: string;
+	organization: Organization
 }
 
 type OkResult<T = null> = {

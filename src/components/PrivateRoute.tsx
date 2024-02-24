@@ -1,7 +1,6 @@
 import {Navigate, Outlet} from "react-router-dom";
 import {useAuth} from '../hooks/UseAuth';
 import {Flex, Spinner} from '@chakra-ui/react';
-import {useEffect} from 'react';
 
 const PrivateRoute = () => {
   const isLoading = useAuth();

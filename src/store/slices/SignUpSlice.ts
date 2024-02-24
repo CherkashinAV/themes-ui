@@ -19,10 +19,6 @@ const initialState: SignUpState = {
 export const signUp = createAsyncThunk<void, RegisterPayload, {rejectValue: string}>(
 	'registration/register',
 	async (registerPayload: RegisterPayload, {rejectWithValue}) => {
-		// if (!validateResult.ok) {
-		// 	return rejectWithValue(validateResult.error);
-		// }
-
 		const result = await authProvider.register(registerPayload);
 
 		if (!result.ok) {

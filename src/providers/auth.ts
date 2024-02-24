@@ -51,24 +51,7 @@ export type refreshTokensResponse = {
 	data: Tokens
 }
 
-export type UserInfoPayload = {
-	accessToken: string;
-}
-
-export type UserInfoResponse = {
-	ok: 'true',
-	data: User
-}
-
 export type Role = 'default' | 'mentor' | 'moderator';
-
-export type User = {
-	name: string;
-	surname: string;
-	email: string;
-	role: Role;
-	uid: string;
-}
 
 type AuthErrorStatus = 
 	| 'BAD_REQUEST'
@@ -127,7 +110,8 @@ class AuthProvider {
 				method: args.method,
 				url: requestUrl.toString(),
 				headers: {
-					'Authorization': `Bearer ${args.accessToken}`
+					'Authorization': `Bearer ${args.accessToken}`,
+					'Content-Type': 'application/json'
 				},
 				data: args.body,
 				params: args.query,
@@ -254,23 +238,6 @@ class AuthProvider {
 		}
 
 		localStorage.setItem('accessToken', result.value.data.data.accessToken)
-
-		return {
-			ok: true,
-			value: result.value.data.data
-		}
-	}
-
-	async userInfo(payload: UserInfoPayload): AsyncResult<User, AuthError> {
-		const result = await this._request<UserInfoResponse>({
-			path: 'user_info',
-			method: 'POST',
-			body: payload
-		});
-
-		if (!result.ok) {
-			return result;
-		}
 
 		return {
 			ok: true,
