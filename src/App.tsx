@@ -5,6 +5,7 @@ import Register from './pages/auth/Register/Register';
 import Login from './pages/auth/Login/Login';
 import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword';
 import Profile from './pages/profile/Profile/Profile';
+import CreateTheme from './pages/themes/CreateTheme';
 
 function App() {
   return (
@@ -16,8 +17,11 @@ function App() {
           <Route path='forgot_password' element={<ForgotPassword/>}/>
         </Route>
         <Route element={<PrivateRoute/>}>
-            <Route path="/home"/>
-            <Route path="/profile" element={<Profile/>}/>
+            <Route path="home"/>
+            <Route path="profile" element={<Profile/>}/>
+            <Route path="theme">
+                <Route path="create" element={<CreateTheme/>}/>
+            </Route>
         </Route>
       </Routes>
     </BrowserRouter>

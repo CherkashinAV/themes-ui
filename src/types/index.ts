@@ -41,6 +41,8 @@ export type User = {
 	organization: Organization
 }
 
+export type ThemeType = 'course' | 'graduation' | 'contest' | 'pet' | 'hackathon';
+
 type OkResult<T = null> = {
 	ok: true,
 	value: T
