@@ -87,6 +87,9 @@ const userSlice = createSlice({
 					state.userInfo = payload
 				}
 			})
+			.addCase(getUserInfo.rejected, (state) => {
+				state.userInfo = null;
+			})
 			.addCase(updateUser.pending, (state) => {
 				state.isLoading = true;
 			})

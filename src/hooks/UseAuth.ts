@@ -4,8 +4,9 @@ import {parseJwt} from '../utils';
 import {JwtPayload} from '../types';
 import {authProvider} from '../providers/auth';
 import {getFingerPrint} from '../utils/authUtils';
-import {getUserInfo} from '../store/slices/User';
+import {getUserInfo, logout} from '../store/slices/User';
 import {useNavigate} from 'react-router-dom';
+import {unwrapResult} from '@reduxjs/toolkit';
 
 export const useAuth = () => {
 	const navigate = useNavigate();
@@ -25,15 +26,23 @@ export const useAuth = () => {
 				const refreshResult = await authProvider.refreshTokens(fingerprint);
 
 				if (!refreshResult.ok) {
-					setIsError(true);
+					await dispatch(logout())
+					setIsError(() => true);
 					return;
 				}
 			}
 
 			if (!state.userInfo) {
-				await dispatch(getUserInfo());
+				try {
+					unwrapResult(await dispatch(getUserInfo()));
+				} catch(err) {
+					await dispatch(logout())
+					setIsError(() => true);
+					return;
+				}
 			}
-			setIsLoading(false);
+
+			setIsLoading(() => false);
 		}
 
 		verifyTokens();
