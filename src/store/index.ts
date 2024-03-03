@@ -4,6 +4,7 @@ import loginReducer from './slices/LoginSlice'
 import forgotPasswordReducer from './slices/ForgotPasswordSlice'
 import resetPasswordReducer from './slices/ResetPasswordSlice'
 import userReducer from './slices/User'
+import createThemeReducer from './slices/CreateThemeSlice'
 
 export const store = configureStore({
 	reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
 		login: loginReducer,
 		forgotPassword: forgotPasswordReducer,
 		resetPassword: resetPasswordReducer,
-		user: userReducer
+		user: userReducer,
+		createTheme: createThemeReducer
 	}
 });
 

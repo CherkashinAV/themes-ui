@@ -6,6 +6,7 @@ import Login from './pages/auth/Login/Login';
 import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword';
 import Profile from './pages/profile/Profile/Profile';
 import CreateTheme from './pages/themes/CreateTheme';
+import Theme from './pages/themes/Theme';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="profile" element={<Profile/>}/>
             <Route path="theme">
                 <Route path="create" element={<CreateTheme/>}/>
+                <Route path=':themeId' element={<Theme/>}/>
             </Route>
         </Route>
       </Routes>

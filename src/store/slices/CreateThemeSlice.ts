@@ -1,36 +1,37 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {authProvider} from '../../providers/auth';
+import {CreateThemePayload, CreateThemeResponse, themesProvider} from '../../providers/themes';
 
 interface CreateThemeState {
 	isFetching: boolean,
 	isSuccess: boolean,
 	isError: boolean,
-	errorMessage: string
+	errorMessage: string,
+	themeId: number
 }
 
 const initialState: CreateThemeState = {
 	isFetching: false,
 	isSuccess: false,
 	isError: false,
-	errorMessage: ''
+	errorMessage: '',
+	themeId: 0
 }
 
-export const sendEmail = createAsyncThunk<void, string, {rejectValue: string}>(
-	'sendEmail/send',
-	async (email: string, {rejectWithValue}) => {
-		const result = await authProvider.sendPasswordRestoreLink({
-			email,
-			linkToResetForm: 'http://localhost:3000/auth/reset_password'
-		});
+export const createTheme = createAsyncThunk<CreateThemeResponse, CreateThemePayload, {rejectValue: string}>(
+	'theme/create',
+	async (payload: CreateThemePayload, {rejectWithValue}) => {
+		const result = await themesProvider.createTheme(payload);
 
 		if (!result.ok) {
 			return rejectWithValue(result.error.message);
 		}
+
+		return result.value;
 	}
 )
 
-const forgotPasswordSlice = createSlice({
-	name: 'forgotPassword',
+const createThemeSlice = createSlice({
+	name: 'createTheme',
 	initialState,
 	reducers: {
 		clearState(state) {
@@ -43,23 +44,24 @@ const forgotPasswordSlice = createSlice({
 	},
 	extraReducers: (builder) => {
 		builder
-			.addCase(sendEmail.rejected, (state, {payload}) => {
+			.addCase(createTheme.rejected, (state, {payload}) => {
 				if (payload) {
 					state.errorMessage = payload;
 				}
 				state.isFetching = false
 				state.isError = true;
 			})
-			.addCase(sendEmail.pending, (state) => {
+			.addCase(createTheme.pending, (state) => {
 				state.isFetching = true
 			})
-			.addCase(sendEmail.fulfilled, (state, {payload}) => {
+			.addCase(createTheme.fulfilled, (state, {payload}) => {
 				state.isFetching = false;
 				state.isSuccess = true;
+				state.themeId = payload.themeId;
 			});
 	}
 });
 
-export const {clearState} = forgotPasswordSlice.actions;
+export const {clearState} = createThemeSlice.actions;
 
-export default forgotPasswordSlice.reducer;
+export default createThemeSlice.reducer;

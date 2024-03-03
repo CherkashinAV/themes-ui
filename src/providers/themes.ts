@@ -1,10 +1,11 @@
-import {AsyncResult, User} from '../types';
+import {AsyncResult, ThemeType, User} from '../types';
 import axios, {AxiosResponse, Method} from 'axios';
 import {getFingerPrint} from '../utils/authUtils';
 
 export type ThemesErrorStatus = |
 	'UNAUTHORIZED' |
-	'BAD_REQUEST';
+	'BAD_REQUEST' |
+	'UNKNOWN';
 
 class ThemesError extends Error {
 	status: ThemesErrorStatus;
@@ -17,6 +18,20 @@ class ThemesError extends Error {
 
 export type UpdateProfilePayload = {
 	description: string;
+}
+
+export type CreateThemePayload = {
+	title: string,
+	shortDescription: string,
+	description: string,
+	executorsCount: number,
+	type: ThemeType,
+	private: boolean
+}
+
+export type CreateThemeResponse = {
+	status: 'OK',
+	themeId: number
 }
 
 class ThemesProvider {
@@ -96,6 +111,23 @@ class ThemesProvider {
 		return {
 			ok: true,
 			value: null
+		}
+	}
+
+	async createTheme(payload: CreateThemePayload): AsyncResult<CreateThemeResponse, ThemesError> {
+		const result = await this._request<CreateThemeResponse>({
+			path: 'ui/theme/create',
+			method: 'POST',
+			body: payload
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: result.value.data
 		}
 	}
 }

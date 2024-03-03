@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import {
 	Flex,
 	Card,
@@ -20,8 +20,10 @@ import {
 	Button
 } from '@chakra-ui/react';
 import {useForm, Controller, SubmitHandler} from 'react-hook-form';
-import {useAppSelector} from '../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {ThemeType} from '../../types';
+import {createTheme} from '../../store/slices/CreateThemeSlice';
+import {useNavigate} from 'react-router-dom';
 
 type FormInput = {
 	title: string,
@@ -33,6 +35,7 @@ type FormInput = {
 }
 
 const CreateTheme = () => {
+	const navigate = useNavigate();
 	const {control, watch, handleSubmit} = useForm<FormInput>({
 		defaultValues: {
 			title: '',
@@ -43,7 +46,8 @@ const CreateTheme = () => {
 			private: 'false'
 		}
 	});
-	const {isFetching, isSuccess, isError, errorMessage} = useAppSelector((state) => state.login);
+	const dispatch = useAppDispatch();
+	const {isFetching, isSuccess, themeId, isError, errorMessage} = useAppSelector((state) => state.createTheme);
 
 	const labelStyles = {
 		mt: '2',
@@ -59,9 +63,18 @@ const CreateTheme = () => {
 		hackaton: 'Хакатон'
 	}
 
-	const onSubmit: SubmitHandler<FormInput> = (data) => {
-		console.log(data)
+	const onSubmit: SubmitHandler<FormInput> = async (data) => {
+		dispatch(createTheme({
+			...data,
+			private: data.private === 'true'
+		}));
 	};
+
+	useEffect(() => {
+		if(isSuccess) {
+			navigate(`/theme/${themeId}`);
+		}
+	}, [isSuccess])
 
 	return (
 		<Flex
@@ -168,7 +181,7 @@ const CreateTheme = () => {
 											<Select {...field}>
 												{Object.entries(projectType).map(
 													([key, value]) => {
-														return <option key={key} value={value}>{value}</option>
+														return <option key={key} value={key}>{value}</option>
 													})
 												}
 											</Select>

@@ -25,6 +25,8 @@ export const useAuth = () => {
 				const fingerprint = await getFingerPrint() ?? '';
 				const refreshResult = await authProvider.refreshTokens(fingerprint);
 
+				console.log(fingerprint)
+
 				if (!refreshResult.ok) {
 					await dispatch(logout())
 					setIsError(() => true);

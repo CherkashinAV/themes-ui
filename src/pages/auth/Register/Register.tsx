@@ -38,7 +38,7 @@ const Register = () => {
 
   useEffect(() => {
     return () => {
-        dispatch(clearState());
+      dispatch(clearState());
     };
   }, []);
 
