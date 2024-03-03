@@ -1,4 +1,4 @@
-import {AsyncResult, ThemeType, User} from '../types';
+import {AsyncResult, Theme, ThemeType, User, UserDetails, UserWithDetails} from '../types';
 import axios, {AxiosResponse, Method} from 'axios';
 import {getFingerPrint} from '../utils/authUtils';
 
@@ -32,6 +32,11 @@ export type CreateThemePayload = {
 export type CreateThemeResponse = {
 	status: 'OK',
 	themeId: number
+}
+
+export type JoinRequestResponse = {
+	status: 'OK',
+	value: UserWithDetails
 }
 
 class ThemesProvider {
@@ -128,6 +133,40 @@ class ThemesProvider {
 		return {
 			ok: true,
 			value: result.value.data
+		}
+	}
+
+	async getTheme(themeId: string): AsyncResult<Theme, ThemesError> {
+		const result = await this._request<Theme>({
+			path: 'ui/theme',
+			method: 'GET',
+			query: {themeId}
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: result.value.data
+		}
+	}
+
+	async joinRequest(themeId: number): AsyncResult<UserWithDetails, ThemesError> {
+		const result = await this._request<JoinRequestResponse>({
+			path: 'ui/theme/join_request',
+			method: 'POST',
+			body: {themeId}
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: result.value.data.value
 		}
 	}
 }

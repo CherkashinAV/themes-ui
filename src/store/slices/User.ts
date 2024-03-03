@@ -80,7 +80,6 @@ const userSlice = createSlice({
 		builder
 			.addCase(logout.fulfilled, (state) => {
 				state.userInfo = null;
-				localStorage.removeItem('accessToken');
 			})
 			.addCase(getUserInfo.fulfilled, (state, {payload}) => {
 				if (payload) {

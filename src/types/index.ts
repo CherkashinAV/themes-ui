@@ -41,7 +41,40 @@ export type User = {
 	organization: Organization
 }
 
+export type UserDetails = {
+	id: number;
+	description: string;
+	organization: Organization
+}
+
+export type UserWithDetails = User & UserDetails;
+
+export type Group = {
+	id: number;
+	size: number;
+	createdAt: Date;
+	updatedAt: Date;
+	participants: UserWithDetails[];
+}
+
+export type ThemeStatus = 'recruiting' | 'staffed' | 'in progress' | 'completed';
 export type ThemeType = 'course' | 'graduation' | 'contest' | 'pet' | 'hackathon';
+
+export type Theme = {
+	id: number;
+	type: ThemeType;
+	title: string;
+	status: ThemeStatus;
+	shortDescription: string;
+	description: string;
+	approver?: UserWithDetails;
+	creator: UserWithDetails;
+	private: boolean;
+	executorsGroup: Group;
+	joinRequests: UserWithDetails[];
+	createdAt: Date;
+	updatedAt: Date;
+}
 
 type OkResult<T = null> = {
 	ok: true,

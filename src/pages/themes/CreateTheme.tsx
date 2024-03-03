@@ -24,6 +24,7 @@ import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {ThemeType} from '../../types';
 import {createTheme} from '../../store/slices/CreateThemeSlice';
 import {useNavigate} from 'react-router-dom';
+import {projectTypeMapping} from '../../utils/themeUtils';
 
 type FormInput = {
 	title: string,
@@ -54,14 +55,6 @@ const CreateTheme = () => {
 		ml: '-2.5',
 		fontSize: 'sm',
 	};
-
-	const projectType = {
-		course: 'Курсовая работа',
-		graduation: 'Выпускная работа',
-		contest: 'Конкурсная работа',
-		pet: 'Pet-проект',
-		hackaton: 'Хакатон'
-	}
 
 	const onSubmit: SubmitHandler<FormInput> = async (data) => {
 		dispatch(createTheme({
@@ -115,6 +108,7 @@ const CreateTheme = () => {
 										)}
 									/>
 								</Box>
+
 								<Box id="description">
 									<Text>Полное описание</Text>
 									<Controller
@@ -179,7 +173,7 @@ const CreateTheme = () => {
 										control={control}
 										render={({field}) => (
 											<Select {...field}>
-												{Object.entries(projectType).map(
+												{Object.entries(projectTypeMapping).map(
 													([key, value]) => {
 														return <option key={key} value={key}>{value}</option>
 													})
