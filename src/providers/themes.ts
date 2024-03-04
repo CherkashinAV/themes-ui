@@ -5,7 +5,8 @@ import {getFingerPrint} from '../utils/authUtils';
 export type ThemesErrorStatus = |
 	'UNAUTHORIZED' |
 	'BAD_REQUEST' |
-	'UNKNOWN';
+	'UNKNOWN' |
+	'NOT_ENOUGH_RIGHTS';
 
 class ThemesError extends Error {
 	status: ThemesErrorStatus;
@@ -167,6 +168,40 @@ class ThemesProvider {
 		return {
 			ok: true,
 			value: result.value.data.value
+		}
+	}
+
+	async acceptRequest(groupId: number, userUid: string): AsyncResult<null, ThemesError> {
+		const result = await this._request({
+			path: 'ui/theme/accept_request',
+			method: 'POST',
+			body: {groupId, userUid}
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: null
+		}
+	}
+
+	async deleteRequest(groupId: number, userUid: string): AsyncResult<null, ThemesError> {
+		const result = await this._request({
+			path: 'ui/theme/delete_request',
+			method: 'DELETE',
+			body: {groupId, userUid}
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: null
 		}
 	}
 }

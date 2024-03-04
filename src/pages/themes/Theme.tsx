@@ -2,7 +2,7 @@ import {Box, Card, CardBody, Flex, Heading, Spinner, Stack, Tag, Tooltip, Text, 
 import React, {useEffect} from 'react'
 import {useParams} from 'react-router-dom'
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {checkIsJoined, checkUserRights, getTheme, joinRequest} from '../../store/slices/ThemeSlice';
+import {acceptRequest, checkIsJoined, checkUserRights, deleteRequest, getTheme, joinRequest} from '../../store/slices/ThemeSlice';
 import {projectTypeMapping} from '../../utils/themeUtils';
 import {CheckIcon} from '@chakra-ui/icons';
 
@@ -39,8 +39,12 @@ const Theme = () => {
 		dispatch(joinRequest(parseInt(themeId, 10)));
 	}
 
-	const acceptRequestHandler = () => {
-		
+	const acceptRequestHandler = (userUid: string) => {
+		dispatch(acceptRequest({groupId: data!.executorsGroup.id, userUid}))
+	}
+
+	const deleteRequestHandler = () => {
+		dispatch(deleteRequest({groupId: data!.executorsGroup.id, userUid: userInfo!.uid}))
 	}
 
 	return (isSuccess ?
@@ -144,6 +148,7 @@ const Theme = () => {
 												rounded={"lg"}
 												bg={"white"}
 												boxShadow={"lg"}
+												key={user.uid}
 											>
 												<Link width={'100%'}>
 													<CardBody>
@@ -197,7 +202,7 @@ const Theme = () => {
 																icon={<CheckIcon/>}
 																w={3}
 																h={5}
-																onClick={acceptRequestHandler}
+																onClick={() => acceptRequestHandler(user.uid)}
 															/>
 														{/* } */}
 													</Flex>
@@ -233,7 +238,7 @@ const Theme = () => {
 										_hover={{
 											bg: "red.500"
 										}}
-										onClick={joinRequestHandler}
+										onClick={() => deleteRequestHandler()}
 									>
 										Отозвать заявку
 									</Button>

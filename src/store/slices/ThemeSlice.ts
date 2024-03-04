@@ -3,6 +3,11 @@ import {themesProvider} from '../../providers/themes';
 import {Theme, UserWithDetails} from '../../types';
 import {RootState} from '..';
 
+type AcceptRequestPayload = {
+	groupId: number;
+	userUid: string;
+}
+
 interface ThemeState {
 	isFetching: boolean,
 	isSuccess: boolean,
@@ -55,20 +60,43 @@ export const joinRequest = createAsyncThunk<UserWithDetails, number, {rejectValu
 	}
 );
 
-export const acceptRequest = createAsyncThunk<UserWithDetails, number, {rejectValue: string}>(
+export const acceptRequest = createAsyncThunk<UserWithDetails, AcceptRequestPayload, {rejectValue: string}>(
 	'theme/acceptRequest',
-	async (themeId: number, {rejectWithValue, getState}) => {
+	async (payload: AcceptRequestPayload, {rejectWithValue, getState}) => {
 		const state = getState() as RootState;
-		if (state.theme.isAlreadyJoined) {
-			return rejectWithValue('Already sent request');
+		const user = state.theme.data?.joinRequests.find((user) => user.uid === payload.userUid);
+
+		if (!user) {
+			return rejectWithValue('No such requests');
 		}
-		const result = await themesProvider.joinRequest(themeId);
+
+		const result = await themesProvider.acceptRequest(payload.groupId, payload.userUid);
 
 		if (!result.ok) {
 			return rejectWithValue(result.error.message);
 		}
 
-		return result.value;
+		return user;
+	}
+);
+
+export const deleteRequest = createAsyncThunk<UserWithDetails, AcceptRequestPayload, {rejectValue: string}>(
+	'theme/deleteRequest',
+	async (payload: AcceptRequestPayload, {rejectWithValue, getState}) => {
+		const state = getState() as RootState;
+		const user = state.theme.data?.joinRequests.find((user) => user.uid === payload.userUid);
+
+		if (!user) {
+			return rejectWithValue('No such requests');
+		}
+
+		const result = await themesProvider.deleteRequest(payload.groupId, payload.userUid);
+
+		if (!result.ok) {
+			return rejectWithValue(result.error.message);
+		}
+
+		return user;
 	}
 );
 
@@ -84,7 +112,9 @@ const themeSlice = createSlice({
 			return state;
 		},
 		checkIsJoined(state, action: PayloadAction<string>) {
-			state.isAlreadyJoined = state.data!.joinRequests.some((user) => user.uid === action.payload);
+			state.isAlreadyJoined = 
+				state.data!.joinRequests.some((user) => user.uid === action.payload) || 
+				state.data!.executorsGroup.participants.some((user) => user.uid === action.payload);
 			return state;
 		},
 		checkUserRights(state, action: PayloadAction<string>) {
@@ -125,7 +155,36 @@ const themeSlice = createSlice({
 				state.isSuccess = true;
 				state.data!.joinRequests.push(payload)
 				return state;
-			});
+			})
+			.addCase(acceptRequest.rejected, (state, {payload}) => {
+				if (payload) {
+					state.errorMessage = payload;
+				}
+				state.isError = true;
+			})
+			.addCase(acceptRequest.fulfilled, (state, {payload}) => {
+				state.isSuccess = true;
+				state.data!.joinRequests = state.data!.joinRequests.filter((user) => user.uid !== payload.uid);
+				state.data!.executorsGroup.participants.push(payload)
+				return state;
+			})
+			.addCase(deleteRequest.rejected, (state, {payload}) => {
+				if (payload) {
+					state.errorMessage = payload;
+				}
+				state.isFetching = false
+				state.isError = true;
+			})
+			.addCase(deleteRequest.pending, (state) => {
+				state.isFetching = true;
+			})
+			.addCase(deleteRequest.fulfilled, (state, {payload}) => {
+				state.isFetching = false;
+				state.isSuccess = true;
+				state.data!.joinRequests = state.data!.joinRequests.filter((user) => user.uid !== payload.uid);
+				return state;
+			})
+			
 	}
 });
 
