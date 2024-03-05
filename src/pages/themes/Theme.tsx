@@ -4,7 +4,8 @@ import {useParams} from 'react-router-dom'
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {acceptRequest, checkIsJoined, checkUserRights, deleteRequest, getTheme, joinRequest} from '../../store/slices/ThemeSlice';
 import {projectTypeMapping} from '../../utils/themeUtils';
-import {CheckIcon} from '@chakra-ui/icons';
+import {CheckIcon, EditIcon} from '@chakra-ui/icons';
+import {Link as RouterLink} from 'react-router-dom';
 
 const scrollBarSettings = {
 	'&::-webkit-scrollbar': {
@@ -21,7 +22,7 @@ const scrollBarSettings = {
 const Theme = () => {
 	const themeId = useParams().themeId!;
 	const dispatch = useAppDispatch();
-	const {isFetching, data, isSuccess, isAlreadyJoined, isApprover} = useAppSelector((state) => state.theme);
+	const {isFetching, data, isSuccess, isAlreadyJoined, isApprover, isCreator} = useAppSelector((state) => state.theme);
 	const {userInfo} = useAppSelector((state) => state.user)
 
 	useEffect(() => {
@@ -99,17 +100,31 @@ const Theme = () => {
 								{data!.status}
 							</Badge>
 						</Flex>
-
-						<Flex gap={5} alignItems={'center'}>
-							<Heading fontSize={15}>Куратор проекта</Heading>
-							<Badge colorScheme='purple' padding={1.5}>
-								{data?.approver ?
-									`${data?.approver.surname} ${data?.approver.name}`
-									:
-									`В активном поиске...`
-								}
-							</Badge>
+						<Flex justifyContent={'space-between'}>
+							<Flex gap={5} alignItems={'center'}>
+								<Heading fontSize={15}>Куратор проекта</Heading>
+								<Badge colorScheme='purple' padding={1.5}>
+									{data?.approver ?
+										`${data?.approver.surname} ${data?.approver.name}`
+										:
+										`В активном поиске...`
+									}
+								</Badge>
+								
+							</Flex>
 							
+							{(data?.approver ? isApprover : isCreator) &&
+								<Link
+									as={RouterLink}
+									color={'blue.400'}
+									textDecoration={'none'}
+									_hover={{color: 'blue.500'}}
+									width={'fit-content'}
+									to={`/theme/${data!.id}/update`}
+								>	
+									<Text color={'blue.400'} _hover={{color: 'blue.500'}} fontSize={15}>Редактировать <EditIcon/></Text>
+								</Link>
+							}
 						</Flex>
 
 						<Stack marginTop={5} gap={5}>

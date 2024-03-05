@@ -40,6 +40,16 @@ export type JoinRequestResponse = {
 	value: UserWithDetails
 }
 
+export type UpdateThemePayload = {
+	id: number,
+	title: string,
+	shortDescription: string,
+	description: string,
+	private: boolean,
+	executorsCount: number,
+	type: ThemeType
+}
+
 class ThemesProvider {
 	private _baseUrl: string;
 
@@ -137,6 +147,23 @@ class ThemesProvider {
 		}
 	}
 
+	async updateTheme(payload: UpdateThemePayload): AsyncResult<null, ThemesError> {
+		const result = await this._request({
+			path: 'ui/theme/update',
+			method: 'PATCH',
+			body: payload
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: null
+		}
+	}
+
 	async getTheme(themeId: string): AsyncResult<Theme, ThemesError> {
 		const result = await this._request<Theme>({
 			path: 'ui/theme',
@@ -202,6 +229,23 @@ class ThemesProvider {
 		return {
 			ok: true,
 			value: null
+		}
+	}
+
+	async getThemes(userUid?: string): AsyncResult<number[], ThemesError> {
+		const result = await this._request<number[]>({
+			path: 'ui/theme/all',
+			method: 'get',
+			body: {userUid}
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: result.value.data
 		}
 	}
 }

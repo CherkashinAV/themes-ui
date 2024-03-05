@@ -41,7 +41,7 @@ const Login = () => {
 
     if (isSuccess) {
       dispatch(clearState());
-      navigate('/profile');
+      navigate('/profile/update');
     }
   }, [isError, isSuccess]);
 

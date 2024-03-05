@@ -28,7 +28,7 @@ export const useAuth = () => {
 				console.log(fingerprint)
 
 				if (!refreshResult.ok) {
-					await dispatch(logout())
+					dispatch(logout());
 					setIsError(() => true);
 					return;
 				}
@@ -38,7 +38,6 @@ export const useAuth = () => {
 				try {
 					unwrapResult(await dispatch(getUserInfo()));
 				} catch(err) {
-					await dispatch(logout())
 					setIsError(() => true);
 					return;
 				}
