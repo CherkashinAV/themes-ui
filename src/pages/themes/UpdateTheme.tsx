@@ -42,7 +42,7 @@ const UpdateTheme = () => {
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 	const {isFetching, isSuccess, isError, errorMessage} = useAppSelector((state) => state.updateTheme);
-	const {data, isSuccess: isThemeLoaded} = useAppSelector((state) => state.theme);
+	const {data} = useAppSelector((state) => state.theme);
 
 	const formControls = useForm<FormInput>({
 		defaultValues: useMemo(() => {
@@ -79,7 +79,7 @@ const UpdateTheme = () => {
 
 	useEffect(() => {
 		if (!data || data.id !== parseInt(themeId!, 10)) {
-			dispatch(getTheme(themeId!))
+			navigate(-1);
 		}
 	}, [])
 
@@ -87,7 +87,7 @@ const UpdateTheme = () => {
 	}, [data]);
 
 	return (
-		isThemeLoaded ?
+		data ?
 		<Flex
 			minH={"100vh"}
 			align={"center"}

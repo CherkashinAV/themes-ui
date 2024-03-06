@@ -236,7 +236,7 @@ class ThemesProvider {
 		const result = await this._request<number[]>({
 			path: 'ui/theme/all',
 			method: 'get',
-			body: {userUid}
+			query: userUid ? {userId: userUid} : undefined
 		});
 
 		if (!result.ok) {

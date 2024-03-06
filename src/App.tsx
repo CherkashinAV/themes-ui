@@ -9,6 +9,7 @@ import CreateTheme from './pages/themes/CreateTheme';
 import Theme from './pages/themes/Theme';
 import Themes from './pages/themes/Themes';
 import UpdateTheme from './pages/themes/UpdateTheme';
+import MyThemes from './pages/themes/MyThemes';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
                 <Route path=':themeId' element={<Theme/>}/>
                 <Route path='find' element={<Themes/>}/>
                 <Route path=':themeId/update' element={<UpdateTheme/>}/>
+                <Route path='my' element={<MyThemes/>}/>
             </Route>
         </Route>
       </Routes>

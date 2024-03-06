@@ -8,6 +8,7 @@ import createThemeReducer from './slices/CreateThemeSlice'
 import updateThemeReducer from './slices/UpdateThemeSlice'
 import themeReducer from './slices/ThemeSlice'
 import themesReducer from './slices/ThemesSlice'
+import myThemesReducer from './slices/MyThemesSlice';
 
 export const store = configureStore({
 	reducer: {
@@ -19,7 +20,8 @@ export const store = configureStore({
 		createTheme: createThemeReducer,
 		updateTheme: updateThemeReducer,
 		theme: themeReducer,
-		themes: themesReducer
+		themes: themesReducer,
+		myThemes: myThemesReducer
 	}
 });
 
