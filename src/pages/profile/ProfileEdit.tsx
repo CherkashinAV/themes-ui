@@ -1,11 +1,11 @@
 import React, {ChangeEvent, useEffect, useState} from 'react'
 import {Box, Button, Text, Flex, FormControl, FormLabel, Heading, Input, Stack, useColorModeValue, Card, CardBody, Tag, Highlight, Tooltip, Textarea, Spinner} from '@chakra-ui/react'
-import {useAppDispatch, useAppSelector} from '../../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {Link} from 'react-router-dom';
-import {matchRole} from '../../../utils/authUtils';
-import {updateUser} from '../../../store/slices/User';
+import {matchRole} from '../../utils/authUtils';
+import {updateUser} from '../../store/slices/User';
 
-const Profile = () => {
+const ProfileEdit = () => {
     const [showAddSkills, setShowAddSkills] = useState(false);
     const [skillInput, setSkillInput] = useState('');
 
@@ -188,4 +188,4 @@ const Profile = () => {
     )
 }
 
-export default Profile
+export default ProfileEdit

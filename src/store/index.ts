@@ -9,6 +9,7 @@ import updateThemeReducer from './slices/UpdateThemeSlice'
 import themeReducer from './slices/ThemeSlice'
 import themesReducer from './slices/ThemesSlice'
 import myThemesReducer from './slices/MyThemesSlice';
+import profileReducer from './slices/ProfileSlice'
 
 export const store = configureStore({
 	reducer: {
@@ -21,7 +22,8 @@ export const store = configureStore({
 		updateTheme: updateThemeReducer,
 		theme: themeReducer,
 		themes: themesReducer,
-		myThemes: myThemesReducer
+		myThemes: myThemesReducer,
+		profile: profileReducer
 	}
 });
 
