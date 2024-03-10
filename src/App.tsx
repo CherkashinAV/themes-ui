@@ -33,6 +33,7 @@ function App() {
                 <Route path='find' element={<Themes/>}/>
                 <Route path=':themeId/update' element={<UpdateTheme/>}/>
                 <Route path='my' element={<MyThemes/>}/>
+                <Route path=':themeId/find_mentor'/>
             </Route>
         </Route>
       </Routes>

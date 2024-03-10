@@ -1,11 +1,16 @@
-import {AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Badge, Box, Flex, Heading, Link, Stack, Tag, Text, Tooltip, transform} from '@chakra-ui/react'
+import {AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Badge, Box, Button, Flex, Heading, Link, Stack, Tag, Text, Tooltip, transform, useDisclosure} from '@chakra-ui/react'
 import React from 'react'
 import {projectTypeMapping} from '../utils/themeUtils'
 import {ThemeType, Theme} from '../types'
 import {Link as RouterLink} from 'react-router-dom';
 import {ArrowForwardIcon} from '@chakra-ui/icons';
+import {useAppSelector} from '../store/hooks';
+import GetThemeMentorModal from './GetThemeMentorModal';
 
 const ThemeAccordionItem = ({theme}: {theme: Theme}) => {
+	const {userInfo} = useAppSelector((state) => state.user);
+	const {isOpen, onOpen, onClose} = useDisclosure();
+
 	return (
 		<AccordionItem>
 			<h2>
@@ -40,12 +45,23 @@ const ThemeAccordionItem = ({theme}: {theme: Theme}) => {
 						</Flex>
 						<Flex gap={3}>
 							<Heading fontSize={13}>Куратор проекта</Heading>
-							<Badge fontSize={12} colorScheme={'blue'} textTransform={'none'}>Антонов Алексей Алексеевич</Badge>
+							<Badge fontSize={12} colorScheme={'blue'} textTransform={'none'}>
+								{theme.approver ?
+									theme.approver.name + ' ' + theme.approver.surname :
+									'Пока нет'
+								}
+							</Badge>
 						</Flex>
 						<Flex gap={3}>
 							<Heading fontSize={13}>Тип работы</Heading>
 							<Badge fontSize={12} colorScheme={'blue'} textTransform={'none'}>{projectTypeMapping[theme.type as ThemeType]}</Badge>
 						</Flex>
+						{userInfo!.uid === theme.creator.uid && !theme.approver &&
+							<>
+								<Button onClick={onOpen}>Найти ментора</Button>
+								<GetThemeMentorModal theme={theme} isOpen={isOpen} onClose={onClose}/>
+							</>
+						}
 					</Stack>
 				</Box>
 				<AccordionIcon />
