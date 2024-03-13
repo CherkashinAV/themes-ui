@@ -50,8 +50,14 @@ export type UpdateThemePayload = {
 	type: ThemeType
 }
 
+export type InviteMentorPayload = {
+	themeId: number,
+	mentorUid: string
+}
+
 class ThemesProvider {
 	private _baseUrl: string;
+	private _fingerprint: string = '';
 
 	constructor() {
 		this._baseUrl = 'http://localhost:8080/v1/themes/';
@@ -66,7 +72,10 @@ class ThemesProvider {
 		const requestUrl = new URL(args.path, this._baseUrl);
 		// let response: AxiosResponse<T>;
 		const accessToken = localStorage.getItem('accessToken');
-		const fingerprint = await getFingerPrint() ?? '';
+
+		if (this._fingerprint === '') {
+			this._fingerprint = await getFingerPrint() ?? '';
+		}
 
 		try {
 			const response = await axios.request<T>({
@@ -75,7 +84,7 @@ class ThemesProvider {
 				headers: {
 					'Content-Type': 'application/json',
 					'Authorization': `Bearer ${accessToken}`,
-					'X-Fingerprint': fingerprint
+					'X-Fingerprint': this._fingerprint
 				},
 				data: args.body,
 				params: args.query,
@@ -246,6 +255,23 @@ class ThemesProvider {
 		return {
 			ok: true,
 			value: result.value.data
+		}
+	}
+
+	async inviteMentor(payload: InviteMentorPayload): AsyncResult<null, ThemesError> {
+		const result = await this._request<number[]>({
+			path: 'ui/theme/invite_mentor',
+			method: 'post',
+			body: payload
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: null
 		}
 	}
 }

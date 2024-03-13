@@ -10,7 +10,7 @@ interface MentorsState {
 	isError: boolean,
 	errorMessage: string,
 	mentors: User[],
-	mentorIds: number[],
+	mentorUids: string[],
 	loadCount: number,
 	lastIndex: number,
 	filters: Record<string, string>
@@ -22,16 +22,16 @@ const initialState: MentorsState = {
 	isError: false,
 	errorMessage: '',
 	mentors: [],
-	mentorIds: [],
+	mentorUids: [],
 	loadCount: 10,
 	lastIndex: 0,
 	filters: {}
 }
 
-export const getMentorIds = createAsyncThunk<number[], {userUid: string | undefined}, {rejectValue: string}>(
-	'themes/getIds',
-	async (payload: {userUid?: string}, {rejectWithValue}) => {
-		const result = await themesProvider.getThemes(payload.userUid);
+export const getMentorIds = createAsyncThunk<string[], void, {rejectValue: string}>(
+	'mentor/getMentorIds',
+	async (_, {rejectWithValue}) => {
+		const result = await authProvider.users('mentor');
 
 		if (!result.ok) {
 			return rejectWithValue(result.error.message);
@@ -42,26 +42,27 @@ export const getMentorIds = createAsyncThunk<number[], {userUid: string | undefi
 );
 
 export const getMentors = createAsyncThunk<{mentors: User[], lastIndex: number}, {count?: number}, {rejectValue: string}>(
-	'themes/getThemes',
+	'mentor/getMentors',
 	async (payload: {count?: number}, {rejectWithValue, getState}) => {
-		const {mentorIds, lastIndex, loadCount} = (getState() as RootState).mentors;
+		const {mentorUids, lastIndex, loadCount} = (getState() as RootState).mentors;
 		let to = lastIndex + loadCount;
 		if (payload.count) {
 			to = lastIndex + payload.count;
 		}
 
-		if (to > mentorIds.length - 1) {
-			to = mentorIds.length - 1;
+		if (to > mentorUids.length - 1) {
+			to = mentorUids.length;
 		}
 
-		const fetchIds = mentorIds.slice(lastIndex, to);
-		const result = await Promise.all(fetchIds.map((id) => themesProvider.getProfile(`${id}`)));
+		const fetchIds = mentorUids.slice(lastIndex, to);
+		console.log(lastIndex, to)
+		const result = await Promise.all(fetchIds.map((uid) => themesProvider.getProfile(uid)));
 		const mentors: User[] = [];
-		for (const themeResult of result) {
-			if (!themeResult.ok) {
+		for (const userResult of result) {
+			if (!userResult.ok) {
 				return rejectWithValue('Unknown error')
 			}
-			mentors.push(themeResult.value);
+			mentors.push(userResult.value);
 		}
 
 		return {mentors, lastIndex: to};
@@ -76,7 +77,8 @@ const mentorSlice = createSlice({
 			state.isError = false;
 			state.isSuccess = false;
 			state.isFetching = false;
-
+			state.mentorUids = [];
+			state.mentors = [];
 			return state;
 		}
 	},
@@ -95,13 +97,14 @@ const mentorSlice = createSlice({
 			.addCase(getMentorIds.fulfilled, (state, {payload}) => {
 				state.isFetching = false;
 				state.isSuccess = true;
-				state.mentorIds = payload;
+				state.mentorUids = payload;
 				return state;
 			})
-			// .addCase(getMentors.fulfilled, (state, {payload}) => {
-			// 	state.mentors.push(...payload.mentors);
-			// 	state.lastIndex = payload.lastIndex;
-			// });
+			.addCase(getMentors.fulfilled, (state, {payload}) => {
+				state.mentors.push(...payload.mentors);
+				state.lastIndex = payload.lastIndex;
+				return state;
+			});
 
 	}
 });

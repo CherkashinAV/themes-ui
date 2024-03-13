@@ -11,11 +11,13 @@ import Themes from './pages/themes/Themes';
 import UpdateTheme from './pages/themes/UpdateTheme';
 import MyThemes from './pages/themes/MyThemes';
 import ProfileView from './pages/profile/ProfileView';
+import Test from './pages/Test';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path='/' element={<Test/>}/>
         <Route path='auth'>
           <Route path='register' element={<Register/>}/>
           <Route path='login' element={<Login/>}/>

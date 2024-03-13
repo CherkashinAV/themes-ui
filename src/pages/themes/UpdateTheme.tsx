@@ -27,6 +27,7 @@ import {useNavigate, useParams} from 'react-router-dom';
 import {projectTypeMapping} from '../../utils/themeUtils';
 import {updateTheme} from '../../store/slices/UpdateThemeSlice';
 import {getTheme} from '../../store/slices/ThemeSlice';
+import LayoutWrapper from '../../components/LayoutWrapper';
 
 type FormInput = {
 	title: string,
@@ -87,175 +88,178 @@ const UpdateTheme = () => {
 	}, [data]);
 
 	return (
-		data ?
-		<Flex
-			minH={"100vh"}
-			align={"center"}
-			justify={"center"}
-			bg="gray.50"
-		>
-			<Card
-				rounded={"lg"}
-				bg={"white"}
-				boxShadow={"lg"}
-				w={"60%"}
-				p={8}
-			>
-				<CardBody>
-					<Stack>
-						<Heading textAlign={'center'} marginBottom={10}>Редактирование темы</Heading>
-						<form onSubmit={formControls.handleSubmit(onSubmit)}>
-							<Stack spacing={8}>
-								<Box>
-									<Text>Название</Text>
-									<Controller
-										name='title'
-										control={formControls.control}
-										render={({field}) => (
-											<Input {...field} name='title'/>
-										)}
-									/>
-								</Box>
-								<Box id="shortDescription">
-									<Text>Короткое описание</Text>
-									<Controller
-										name='shortDescription'
-										control={formControls.control}
-										render={({field}) => (
-											<Textarea {...field} name='shortDescription'/>
-										)}
-									/>
-								</Box>
-
-								<Box id="description">
-									<Text>Полное описание</Text>
-									<Controller
-										name='description'
-										control={formControls.control}
-										render={({field}) => (
-											<Textarea {...field} name='description'/>
-										)}
-									/>
-								</Box>
-								<Box>
-									<Flex
-										alignItems={'center'}
-										gap={4}
-									>
-										Количество исполнителей
-										<Box 
-											padding={2}
-											bg={'gray.200'}
-											fontSize={12}
-											borderRadius={3}
-										>
-											{formControls.watch().executorsCount}
-										</Box>
-									</Flex>
-									<Controller
-										name='executorsCount'
-										control={formControls.control}
-										render={({field}) => (
-											<Slider
-												{...field}
-												aria-label='slider-ex-6'
-												max={9}
-												min={1}
-												step={1}
-												marginTop={10}
-											>
-												<SliderMark value={1} {...labelStyles}>
-													1
-												</SliderMark>
-												<SliderMark value={5} {...labelStyles}>
-													5
-												</SliderMark>
-												<SliderMark value={9} {...labelStyles}>
-													9
-												</SliderMark>
-												<SliderTrack>
-													<SliderFilledTrack />
-												</SliderTrack>
-												<SliderThumb boxSize={5}/>
-											</Slider>
-										)}
-									/>
-									
-								</Box>
-
-								<Box>
-									<Text>Тип работы</Text>
-									<Controller
-										name="type"
-										control={formControls.control}
-										render={({field}) => (
-											<Select {...field}>
-												{Object.entries(projectTypeMapping).map(
-													([key, value]) => {
-														return <option key={key} value={key}>{value}</option>
-													})
-												}
-											</Select>
-										)}
-									/>
-									
-								</Box>
-
-								<Box>
-									<Controller
-										name='private'
-										control={formControls.control}
-										render={({field}) => (
-											<Switch {...field} name='private' defaultChecked={data!.private}>
-												Сделать приватной темой для вашей организации
-											</Switch>
-										)}
-									/>
-									
-								</Box>
-
-								<Flex justifyContent={'center'} marginTop={6}>
-									<Box width={400}>
-										{isFetching ?
-											<Button
-												isLoading
-												loadingText='Меняем данные...'
-												bg={"blue.400"}
-												type="submit"
-												w="100%"
-												color={"white"}
-												disabled
+		<LayoutWrapper>
+			{data ?
+				<Flex
+					h={'100%'}
+					align={"center"}
+					justify={"center"}
+					bg="gray.50"
+				>
+					<Card
+						rounded={"lg"}
+						bg={"white"}
+						boxShadow={"lg"}
+						w={"60%"}
+						p={8}
+					>
+						<CardBody>
+							<Stack>
+								<Heading textAlign={'center'} marginBottom={10}>Редактирование темы</Heading>
+								<form onSubmit={formControls.handleSubmit(onSubmit)}>
+									<Stack spacing={8}>
+										<Box>
+											<Text>Название</Text>
+											<Controller
+												name='title'
+												control={formControls.control}
+												render={({field}) => (
+													<Input {...field} name='title'/>
+												)}
 											/>
-											:
-											<Button
-											bg={"blue.400"}
-											type="submit"
-											w="100%"
-											color={"white"}
-											_hover={{
-												bg: "blue.500"
-											}}
+										</Box>
+										<Box id="shortDescription">
+											<Text>Короткое описание</Text>
+											<Controller
+												name='shortDescription'
+												control={formControls.control}
+												render={({field}) => (
+													<Textarea {...field} name='shortDescription'/>
+												)}
+											/>
+										</Box>
+
+										<Box id="description">
+											<Text>Полное описание</Text>
+											<Controller
+												name='description'
+												control={formControls.control}
+												render={({field}) => (
+													<Textarea {...field} name='description'/>
+												)}
+											/>
+										</Box>
+										<Box>
+											<Flex
+												alignItems={'center'}
+												gap={4}
 											>
-												Изменить
-											</Button>
-										}
-									</Box>
-								</Flex>
+												Количество исполнителей
+												<Box 
+													padding={2}
+													bg={'gray.200'}
+													fontSize={12}
+													borderRadius={3}
+												>
+													{formControls.watch().executorsCount}
+												</Box>
+											</Flex>
+											<Controller
+												name='executorsCount'
+												control={formControls.control}
+												render={({field}) => (
+													<Slider
+														{...field}
+														aria-label='slider-ex-6'
+														max={9}
+														min={1}
+														step={1}
+														marginTop={10}
+													>
+														<SliderMark value={1} {...labelStyles}>
+															1
+														</SliderMark>
+														<SliderMark value={5} {...labelStyles}>
+															5
+														</SliderMark>
+														<SliderMark value={9} {...labelStyles}>
+															9
+														</SliderMark>
+														<SliderTrack>
+															<SliderFilledTrack />
+														</SliderTrack>
+														<SliderThumb boxSize={5}/>
+													</Slider>
+												)}
+											/>
+											
+										</Box>
+
+										<Box>
+											<Text>Тип работы</Text>
+											<Controller
+												name="type"
+												control={formControls.control}
+												render={({field}) => (
+													<Select {...field}>
+														{Object.entries(projectTypeMapping).map(
+															([key, value]) => {
+																return <option key={key} value={key}>{value}</option>
+															})
+														}
+													</Select>
+												)}
+											/>
+											
+										</Box>
+
+										<Box>
+											<Controller
+												name='private'
+												control={formControls.control}
+												render={({field}) => (
+													<Switch {...field} name='private' defaultChecked={data!.private}>
+														Сделать приватной темой для вашей организации
+													</Switch>
+												)}
+											/>
+											
+										</Box>
+
+										<Flex justifyContent={'center'} marginTop={6}>
+											<Box width={400}>
+												{isFetching ?
+													<Button
+														isLoading
+														loadingText='Меняем данные...'
+														bg={"blue.400"}
+														type="submit"
+														w="100%"
+														color={"white"}
+														disabled
+													/>
+													:
+													<Button
+													bg={"blue.400"}
+													type="submit"
+													w="100%"
+													color={"white"}
+													_hover={{
+														bg: "blue.500"
+													}}
+													>
+														Изменить
+													</Button>
+												}
+											</Box>
+										</Flex>
+									</Stack>
+								</form>
 							</Stack>
-						</form>
-					</Stack>
-				</CardBody>
-			</Card>
-		</Flex>
-		:
-		<Flex
-			minW={"100vw"}
-			minH={"100vh"}
-			justifyContent={"center"}
-			alignItems={"center"}
-		>
-			<Spinner />
-		</Flex>
+						</CardBody>
+					</Card>
+				</Flex>
+				:
+				<Flex
+					h={'100%'}
+					w={'100%'}
+					justifyContent={"center"}
+					alignItems={"center"}
+				>
+					<Spinner />
+				</Flex>
+			}
+		</LayoutWrapper>
 	);
 }
 

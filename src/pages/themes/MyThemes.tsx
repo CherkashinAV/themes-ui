@@ -3,6 +3,7 @@ import React, {useEffect, useRef, useState} from 'react'
 import {useAppDispatch, useAppSelector} from '../../store/hooks'
 import ThemeAccordionItem from '../../components/ThemeAccordionItem'
 import {getThemes, getThemesIds} from '../../store/slices/MyThemesSlice'
+import LayoutWrapper from '../../components/LayoutWrapper'
 
 const scrollBarSettings = {
 	'&::-webkit-scrollbar': {
@@ -27,29 +28,32 @@ const MyThemes = () => {
     }, []);
 
     return (
-		themes &&  
-        <Flex alignItems={'center'} justifyContent={'center'} minHeight={'100vh'} maxHeight={'100vh'} bg={"gray.50"}>
-			<Card
-				rounded={"lg"}
-				bg={"white"}
-				width={'100%'}
-				boxShadow={'md'}
-				p={8}
-			>
-				<CardBody>
-				<Flex justifyContent={'center'}>
-					<Heading fontSize={20}>Список моих тем</Heading>
+		<LayoutWrapper>
+			{themes &&  
+				<Flex alignItems={'center'} justifyContent={'center'} h={'100%'} bg={"gray.50"}>
+					<Card
+						rounded={"lg"}
+						bg={"white"}
+						width={'100%'}
+						boxShadow={'md'}
+						p={8}
+					>
+						<CardBody>
+						<Flex justifyContent={'center'}>
+							<Heading fontSize={20}>Список моих тем</Heading>
+						</Flex>
+						<Box marginTop={8} minH={'60vh'} maxH={'60vh'} overflowY={'scroll'} sx={scrollBarSettings}>
+							<Accordion>
+							{themes.map((theme) =>
+								<ThemeAccordionItem theme={theme} key={theme.id}/>
+							)}
+							</Accordion>
+						</Box>
+						</CardBody>
+					</Card>
 				</Flex>
-				<Box marginTop={8} minH={'60vh'} maxH={'60vh'} overflowY={'scroll'} sx={scrollBarSettings}>
-					<Accordion>
-					{themes.map((theme) =>
-						<ThemeAccordionItem theme={theme} key={theme.id}/>
-					)}
-					</Accordion>
-				</Box>
-				</CardBody>
-			</Card>
-        </Flex>
+			}
+		</LayoutWrapper>
     )
 }
 

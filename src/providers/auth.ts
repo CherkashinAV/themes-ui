@@ -1,5 +1,6 @@
 import {AsyncResult} from '../types';
 import axios, {AxiosResponse, Method} from 'axios';
+import {getFingerPrint} from '../utils/authUtils';
 
 export type RegisterPayload = {
 	email: string;
@@ -46,9 +47,14 @@ export type Tokens = {
 	refreshToken: string;
 }
 
-export type refreshTokensResponse = {
+export type RefreshTokensResponse = {
 	status: 'ok',
 	data: Tokens
+}
+
+export type UsersResponse = {
+	status: 'OK',
+	data: string[]
 }
 
 export type Role = 'default' | 'mentor' | 'moderator';
@@ -90,6 +96,7 @@ class AuthError extends Error {
 class AuthProvider {
 	private _baseUrl: string;
 	private _partition: string;
+	private _fingerprint: string = '';
 
 	constructor() {
 		this._baseUrl = 'http://localhost:8080/v1/passport/';
@@ -104,6 +111,9 @@ class AuthProvider {
 		query?: Record<string, string>
 	}): AsyncResult<AxiosResponse<T>, AuthError> {
 		const requestUrl = new URL(args.path, this._baseUrl);
+		if (this._fingerprint === '') {
+			this._fingerprint = await getFingerPrint() ?? '';
+		}
 		// let response: AxiosResponse<T>;
 		try {
 			const response = await axios.request<T>({
@@ -111,7 +121,8 @@ class AuthProvider {
 				url: requestUrl.toString(),
 				headers: {
 					'Authorization': `Bearer ${args.accessToken}`,
-					'Content-Type': 'application/json'
+					'Content-Type': 'application/json',
+					'X-Fingerprint': this._fingerprint
 				},
 				data: args.body,
 				params: args.query,
@@ -227,7 +238,7 @@ class AuthProvider {
 	}
 
 	async refreshTokens(fingerprint: string): AsyncResult<Tokens, AuthError> {
-		const result = await this._request<refreshTokensResponse>({
+		const result = await this._request<RefreshTokensResponse>({
 			path: 'refresh_tokens',
 			method: 'POST',
 			body: {fingerprint}
@@ -238,6 +249,25 @@ class AuthProvider {
 		}
 
 		localStorage.setItem('accessToken', result.value.data.data.accessToken)
+
+		return {
+			ok: true,
+			value: result.value.data.data
+		}
+	}
+
+	async users(role: string): AsyncResult<string[], AuthError> {
+		const accessToken = localStorage.getItem('accessToken') ?? '';
+		const result = await this._request<UsersResponse>({
+			path: 'users',
+			method: 'GET',
+			query: {partition: this._partition, role},
+			accessToken: accessToken
+		});
+
+		if (!result.ok) {
+			return result;
+		}
 
 		return {
 			ok: true,

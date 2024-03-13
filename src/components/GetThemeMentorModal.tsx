@@ -7,6 +7,7 @@ import {getThemes, getThemesIds} from '../store/slices/ThemesSlice'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Theme} from '../types'
 import MentorAccordionItem from './MentorAccordionItem'
+import {clearState, getMentorIds, getMentors} from '../store/slices/MentorSlice'
 
 const scrollBarSettings = {
 	'&::-webkit-scrollbar': {
@@ -37,7 +38,7 @@ const GetThemeMentorModal = ({theme, isOpen, onClose}: GetThemeMentorModalProps)
       if (mentorListRef && mentorListRef.current) {
         mentorListRef.current.addEventListener('scroll', scrollHandler);
       }
-      dispatch(getThemesIds({userUid: undefined}))
+      dispatch(getMentorIds())
         .then(() => {
           setIsLoadingUsers(() => true)
         });
@@ -49,9 +50,9 @@ const GetThemeMentorModal = ({theme, isOpen, onClose}: GetThemeMentorModalProps)
 
     useEffect(() => {
       if (isLoadingUsers) {
-        dispatch(getThemes({count: undefined}))
+        dispatch(getMentors({count: undefined}))
           .unwrap()
-          .then(() => setIsLoadingUsers(false))
+          .then(() => setIsLoadingUsers(true))
       }
     }, [isLoadingUsers]);
 
@@ -94,7 +95,7 @@ const GetThemeMentorModal = ({theme, isOpen, onClose}: GetThemeMentorModalProps)
                   <Box marginTop={8} ref={mentorListRef} overflowY={'scroll'} sx={scrollBarSettings}>
                     <Accordion>
                       {state.mentors.mentors.map((mentor) =>
-                        <MentorAccordionItem user={mentor} key={mentor.uid}/>
+                        <MentorAccordionItem user={mentor} themeId={theme.id} key={mentor.uid}/>
                       )}
                     </Accordion>
                   </Box>
