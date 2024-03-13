@@ -207,10 +207,10 @@ const Theme = () => {
 													>
 														<CardBody>
 															<Flex alignItems={'center'} justifyContent={'space-between'}>
-																<Link>
+																<Link as={RouterLink} to={`/profile/${user.uid}`}>
 																	{`${user.surname} ${user.name}`}
 																</Link>
-																{/* {isApprover && */}
+																{isApprover &&
 																	<IconButton 
 																		aria-label={'Принять запрос'}
 																		colorScheme='blue'
@@ -222,7 +222,7 @@ const Theme = () => {
 																		h={5}
 																		onClick={() => acceptRequestHandler(user.uid)}
 																	/>
-																{/* } */}
+																} 
 															</Flex>
 														</CardBody>
 													</Card>

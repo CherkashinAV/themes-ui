@@ -1,10 +1,11 @@
-import {Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Card, CardBody, Flex, Heading, Stack, useColorModeValue} from '@chakra-ui/react'
+import {Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Button, Card, CardBody, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Flex, Heading, IconButton, Input, Stack, useColorModeValue, useDisclosure} from '@chakra-ui/react'
 import React, {useEffect, useRef, useState} from 'react'
 import SearchBar from '../../components/SearchBar'
 import {useAppDispatch, useAppSelector} from '../../store/hooks'
 import ThemeAccordionItem from '../../components/ThemeAccordionItem'
 import {getThemes, getThemesIds} from '../../store/slices/ThemesSlice'
 import LayoutWrapper from '../../components/LayoutWrapper'
+import {SettingsIcon} from '@chakra-ui/icons'
 
 const scrollBarSettings = {
 	'&::-webkit-scrollbar': {
@@ -20,9 +21,11 @@ const scrollBarSettings = {
 
 const Themes = () => {
     const [isLoadingThemes, setIsLoadingThemes] = useState(false);
+    const {isOpen, onOpen, onClose} = useDisclosure()
     const dispatch = useAppDispatch();
     const state = useAppSelector((state) => state);
     const themeListRef = useRef<HTMLDivElement>(null);
+    const filterButtonRef = useRef(null);
 
     useEffect(() => {
       if (themeListRef && themeListRef.current) {
@@ -60,12 +63,12 @@ const Themes = () => {
         <LayoutWrapper>
           <Flex alignItems={'center'} justifyContent={'center'} h={'100%'} bg={"gray.50"}>
             <Card
-              width={'90%'}
+              width={'80%'}
               rounded={"lg"}
               bg={useColorModeValue("white", "gray.700")}
               boxShadow={'lg'}
-              p={3}
-              h={'90%'}
+              marginTop={5}
+              marginBottom={5}
             >
               <CardBody height={'100%'}>
                 <Stack
@@ -76,48 +79,62 @@ const Themes = () => {
                   <Box width={'60%'}>
                       <SearchBar/>
                   </Box>
-                  <Flex width={'100%'} gap={5}>
-                    <Stack alignItems={'center'} flex={'3 1 0'}>
-                      <Card
-                        rounded={"lg"}
-                        bg={useColorModeValue("white", "gray.700")}
-                        width={'100%'}
-                        boxShadow={'md'}
-                        p={8}
-                      >
-                        <CardBody>
-                          <Flex justifyContent={'center'}>
-                              <Heading fontSize={20}>Список подобранных тем</Heading>
-                          </Flex>
-                          <Box marginTop={8} minH={'60vh'} maxH={'60vh'} ref={themeListRef} overflowY={'scroll'} sx={scrollBarSettings}>
-                            <Accordion>
-                              {state.themes.themes.map((theme) =>
-                                <ThemeAccordionItem theme={theme} key={theme.id}/>
-                              )}
-                            </Accordion>
-                          </Box>
-                        </CardBody>
-                      </Card>
-                    </Stack>
-                    <Card
-                      rounded={"lg"}
-                      bg={useColorModeValue("white", "gray.700")}
-                      p={8}
-                      width={'100%'}
-                      flex={'1 1 0'}
-                      boxShadow={'md'}
-                    >
-                      <CardBody>
-                        <Flex justifyContent={'center'}>
-                          <Heading fontSize={20}>Фильтры</Heading>
-                        </Flex>
-                      </CardBody>
-                    </Card>
-                  </Flex>
+                  <Card
+                    rounded={"lg"}
+                    bg={useColorModeValue("white", "gray.700")}
+                    width={'100%'}
+                    boxShadow={'md'}
+                    p={8}
+                  >
+                    <CardBody>
+                      <Flex justifyContent={'center'}>
+                          <Heading fontSize={20}>Список подобранных тем</Heading>
+                      </Flex>
+                      <IconButton
+                        ref={filterButtonRef}
+                        aria-label='open-filters'
+                        icon={<SettingsIcon/>}
+                        position={'absolute'}
+                        right={5}
+                        top={5}
+                        onClick={onOpen}
+                      ></IconButton>
+                      <Box marginTop={8} minH={'50vh'} maxH={'55vh'} ref={themeListRef} overflowY={'scroll'} sx={scrollBarSettings}>
+                        <Accordion>
+                          {state.themes.themes.map((theme) =>
+                            <ThemeAccordionItem theme={theme} key={theme.id}/>
+                          )}
+                        </Accordion>
+                      </Box>
+                    </CardBody>
+                  </Card>
                 </Stack>
               </CardBody>
             </Card>
           </Flex>
+          <Drawer
+            isOpen={isOpen}
+            placement='right'
+            onClose={onClose}
+            finalFocusRef={filterButtonRef}
+          >
+            <DrawerOverlay />
+            <DrawerContent>
+              <DrawerCloseButton />
+              <DrawerHeader>Фильтры</DrawerHeader>
+
+              <DrawerBody>
+                <Input placeholder='Type here...' />
+              </DrawerBody>
+
+              <DrawerFooter>
+                <Button variant='outline' mr={3} onClick={onClose}>
+                  Cancel
+                </Button>
+                <Button colorScheme='blue'>Save</Button>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
         </LayoutWrapper>
     )
 }

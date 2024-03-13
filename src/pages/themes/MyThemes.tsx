@@ -36,6 +36,7 @@ const MyThemes = () => {
 						bg={"white"}
 						width={'100%'}
 						boxShadow={'md'}
+						w={'80%'}
 						p={8}
 					>
 						<CardBody>

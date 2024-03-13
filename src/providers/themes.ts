@@ -1,4 +1,4 @@
-import {AsyncResult, Theme, ThemeType, User, UserDetails, UserWithDetails} from '../types';
+import {AsyncResult, Theme, ThemeType, User,  UserWithDetails} from '../types';
 import axios, {AxiosResponse, Method} from 'axios';
 import {getFingerPrint} from '../utils/authUtils';
 

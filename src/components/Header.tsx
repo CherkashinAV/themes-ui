@@ -18,7 +18,7 @@ const Header = () => {
 	}
 
 	return (
-		<Box width={'100%'} height={14} bg={'gray.100'}>
+		<Box width={'100%'} height={'5vh'} bg={'gray.100'}>
 			<Flex justifyContent={'space-between'} alignItems={'center'} h={'100%'} marginRight={10} marginLeft={10}>
 				<Box width={8}>
 					<Image src={logo}/>

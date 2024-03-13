@@ -73,15 +73,17 @@ const CreateTheme = () => {
 	return (
 		<LayoutWrapper>
 			<Flex
-				height={'100%'}
 				align={"center"}
 				justify={"center"}
 				bg={useColorModeValue("gray.50", "gray.800")}
+				height={'100%'}
 			>
 				<Card
 					rounded={"lg"}
 					bg={useColorModeValue("white", "gray.700")}
 					boxShadow={"lg"}
+					marginTop={10}
+					marginBottom={10}
 					w={"60%"}
 					p={8}
 				>
