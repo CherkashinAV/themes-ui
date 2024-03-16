@@ -11,6 +11,7 @@ import themesReducer from './slices/ThemesSlice'
 import myThemesReducer from './slices/MyThemesSlice';
 import profileReducer from './slices/ProfileSlice'
 import mentorsReducer from './slices/MentorSlice'
+import notificationsReducer from './slices/NotificationSlice';
 
 export const store = configureStore({
 	reducer: {
@@ -25,7 +26,8 @@ export const store = configureStore({
 		themes: themesReducer,
 		myThemes: myThemesReducer,
 		profile: profileReducer,
-		mentors: mentorsReducer
+		mentors: mentorsReducer,
+		notifications: notificationsReducer
 	}
 });
 

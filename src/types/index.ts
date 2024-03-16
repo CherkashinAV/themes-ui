@@ -76,6 +76,15 @@ export type Theme = {
 	updatedAt: Date;
 }
 
+export type NotificationType = 'INVITE_MENTOR' | 'MENTOR_RESPONSE' | 'THEME_STATUS';
+
+export type Notification = {
+	type: NotificationType,
+	createdAt: Date,
+	attributes: unknown,
+	new: boolean
+}
+
 type OkResult<T = null> = {
 	ok: true,
 	value: T

@@ -1,11 +1,15 @@
-import {Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Button, Card, CardBody, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Flex, Heading, IconButton, Input, Stack, useColorModeValue, useDisclosure} from '@chakra-ui/react'
+import {Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Button, Card, CardBody, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Flex, Heading, IconButton, Input, Select, Stack, useColorModeValue, useDisclosure, Text, Switch, Skeleton, SliderMark, Slider, SliderFilledTrack, SliderTrack, SliderThumb} from '@chakra-ui/react'
 import React, {useEffect, useRef, useState} from 'react'
 import SearchBar from '../../components/SearchBar'
 import {useAppDispatch, useAppSelector} from '../../store/hooks'
 import ThemeAccordionItem from '../../components/ThemeAccordionItem'
-import {getThemes, getThemesIds} from '../../store/slices/ThemesSlice'
+import {getThemes, getThemesIds, setFilters, clearState, Filters} from '../../store/slices/ThemesSlice'
 import LayoutWrapper from '../../components/LayoutWrapper'
 import {SettingsIcon} from '@chakra-ui/icons'
+import {Controller, useForm} from 'react-hook-form'
+import {ThemeType} from '../../types'
+import {projectTypeMapping} from '../../utils/themeUtils'
+import {unwrapResult} from '@reduxjs/toolkit'
 
 const scrollBarSettings = {
 	'&::-webkit-scrollbar': {
@@ -19,6 +23,12 @@ const scrollBarSettings = {
 	}
 }
 
+const labelStyles = {
+  mt: '2',
+  ml: '-2.5',
+  fontSize: 'sm',
+};
+
 const Themes = () => {
     const [isLoadingThemes, setIsLoadingThemes] = useState(false);
     const {isOpen, onOpen, onClose} = useDisclosure()
@@ -26,6 +36,43 @@ const Themes = () => {
     const state = useAppSelector((state) => state);
     const themeListRef = useRef<HTMLDivElement>(null);
     const filterButtonRef = useRef(null);
+
+    const {control, watch, handleSubmit, resetField} = useForm<Filters>({
+      defaultValues: {
+        type: state.themes.filters?.type as ThemeType ?? 'no',
+        private: state.themes.filters?.private ?? 'false',
+        slotsCount: state.themes.filters?.slotsCount ?? 1
+      }
+    });
+
+    const filterSubmit = handleSubmit((data) => {
+      console.log(data)
+      if (data.private === 'false') {
+        data.private = undefined;
+      }
+
+      data.type = data.type === 'no' ? undefined : data.type;
+
+      dispatch(clearState())
+      dispatch(setFilters(data))
+      dispatch(getThemesIds({userUid: undefined}))
+        .unwrap()
+        .then(() => {
+          setIsLoadingThemes(() => true)
+        });
+      onClose();
+    });
+
+    const resetFilters = () => {
+      dispatch(clearState());
+      dispatch(getThemesIds({userUid: undefined}))
+        .unwrap()
+        .then(() => {
+          setIsLoadingThemes(() => true)
+        });
+      resetField('slotsCount');
+      onClose()
+    }
 
     useEffect(() => {
       if (themeListRef && themeListRef.current) {
@@ -38,6 +85,7 @@ const Themes = () => {
 
       return function() {
         themeListRef.current?.removeEventListener('scroll', scrollHandler);
+        dispatch(clearState());
       }
     }, []);
 
@@ -45,13 +93,13 @@ const Themes = () => {
       if (isLoadingThemes) {
         dispatch(getThemes({count: undefined}))
           .unwrap()
-          .then(() => setIsLoadingThemes(false))
+          .then(() => setIsLoadingThemes(() => false))
       }
-    }, [isLoadingThemes]);
+    }, [isLoadingThemes, state.themes.themeIds]);
 
     const scrollHandler = (e: any) => {
       if (e.currentTarget.scrollHeight - (e.currentTarget.scrollTop + e.currentTarget.clientHeight) < 5) {
-        setIsLoadingThemes(true);
+        setIsLoadingThemes(() => true);
         console.log('true')
       }
       // console.log('scrollHeight: ', e.currentTarget.scrollHeight)
@@ -124,14 +172,95 @@ const Themes = () => {
               <DrawerHeader>Фильтры</DrawerHeader>
 
               <DrawerBody>
-                <Input placeholder='Type here...' />
+                <Stack gap={5}>
+                  <Box>
+                    <Text>Тип работы</Text>
+                    <Controller
+                      name="type"
+                      control={control}
+                      render={({field}) => (
+                        <Select {...field}>
+                          <option value={'no'}>{'Не важно'}</option>
+                          {Object.entries(projectTypeMapping).map(
+                            ([key, value]) => {
+                              return <option key={key} value={key}>{value}</option>
+                            })
+                          }
+                        </Select>
+                      )}
+                    />
+                    
+                  </Box>
+
+                  <Box>
+                      <Controller
+                        name='private'
+                        control={control}
+                        render={({field}) => (
+                          <Flex gap={3} alignItems={'center'}>
+                            <Switch {...field} name='private' defaultChecked={(state.themes.filters?.private ?? false).toString() === 'true'}/>
+                            <Text>Показывать темы только вашей организации</Text>
+                          </Flex>
+                        )}
+                      />
+                  </Box>
+
+                  <Box padding={5}>
+                    <Flex
+                      alignItems={'center'}
+                      gap={4}
+                    >
+                      Минимальное количество свободных слотов
+                      <Box 
+                        padding={2}
+                        bg={'gray.200'}
+                        fontSize={12}
+                        borderRadius={3}
+                      >
+                        {watch().slotsCount}
+                      </Box>
+                    </Flex>
+                    <Controller
+                      name='slotsCount'
+                      control={control}
+                      render={({field}) => (
+                        <Slider
+                          {...field}
+                          aria-label='slider-ex-6'
+                          max={9}
+                          min={1}
+                          step={1}
+                          marginTop={10}
+                        >
+                          <SliderMark value={1} {...labelStyles}>
+                            1
+                          </SliderMark>
+                          <SliderMark value={5} {...labelStyles}>
+                            5
+                          </SliderMark>
+                          <SliderMark value={9} {...labelStyles}>
+                            9
+                          </SliderMark>
+                          <SliderTrack>
+                            <SliderFilledTrack />
+                          </SliderTrack>
+                          <SliderThumb boxSize={5}/>
+                        </Slider>
+                      )}
+                    />
+                    
+                  </Box>
+
+                </Stack>
               </DrawerBody>
 
               <DrawerFooter>
-                <Button variant='outline' mr={3} onClick={onClose}>
-                  Cancel
-                </Button>
-                <Button colorScheme='blue'>Save</Button>
+                <Flex justifyContent={'center'} width={'100%'} gap={3}>
+                  <Button variant='outline' onClick={resetFilters}>
+                    Сбросить
+                  </Button>
+                  <Button colorScheme='blue' onClick={filterSubmit}>Применить</Button>
+                </Flex>
               </DrawerFooter>
             </DrawerContent>
           </Drawer>

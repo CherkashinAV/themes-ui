@@ -1,6 +1,7 @@
-import {AsyncResult, Theme, ThemeType, User,  UserWithDetails} from '../types';
+import {AsyncResult, Theme, ThemeType, User,  UserWithDetails, Notification} from '../types';
 import axios, {AxiosResponse, Method} from 'axios';
 import {getFingerPrint} from '../utils/authUtils';
+import {Filters} from '../store/slices/ThemesSlice';
 
 export type ThemesErrorStatus = |
 	'UNAUTHORIZED' |
@@ -67,7 +68,7 @@ class ThemesProvider {
 		path: string;
 		method: Method;
 		body?: Record<string, unknown>
-		query?: Record<string, string>
+		query?: Record<string, string | undefined>
 	}): AsyncResult<AxiosResponse<T>, ThemesError> {
 		const requestUrl = new URL(args.path, this._baseUrl);
 		// let response: AxiosResponse<T>;
@@ -241,11 +242,23 @@ class ThemesProvider {
 		}
 	}
 
-	async getThemes(userUid?: string): AsyncResult<number[], ThemesError> {
+	async getThemes(userUid?: string, filters?: Filters): AsyncResult<number[], ThemesError> {
+		let filtersDict: Record<string, string> = {};
+
+		for (const [key, value] of Object.entries(filters ?? {})) {
+			if (value === undefined) {
+				continue;
+			}
+			filtersDict[key] = value.toString();
+		}
+
 		const result = await this._request<number[]>({
 			path: 'ui/theme/all',
 			method: 'get',
-			query: userUid ? {userId: userUid} : undefined
+			query: {
+				userId: userUid,
+				...filtersDict
+			}
 		});
 
 		if (!result.ok) {
@@ -272,6 +285,22 @@ class ThemesProvider {
 		return {
 			ok: true,
 			value: null
+		}
+	}
+
+	async getNotifications(): AsyncResult<Notification[], ThemesError> {
+		const result = await this._request<Notification[]>({
+			path: 'ui/notifications',
+			method: 'get',
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: result.value.data
 		}
 	}
 }
