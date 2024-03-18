@@ -1,8 +1,9 @@
-import {Badge, Card, CardBody, CardHeader, Flex, Heading, Link, Text} from '@chakra-ui/react'
-import React from 'react'
+import {Badge, Button, Card, CardBody, CardHeader, Flex, Heading, Link, Text} from '@chakra-ui/react'
+import React, {useEffect, useRef} from 'react'
 import {Link as RouterLink} from 'react-router-dom';
 import {NotificationType, Notification as NotificationInterface} from '../types'
-import Header from './Header';
+import {useAppDispatch} from '../store/hooks';
+import {lookNotification} from '../store/slices/NotificationSlice';
 
 const notificationHeaders: Record<NotificationType, string> = {
 	INVITE_MENTOR: 'Приглашение ментора',
@@ -17,15 +18,40 @@ const notificationsTexts: Record<NotificationType, string> = {
 }
 
 const Notification = ({notification}: {notification: NotificationInterface}) => {
+	const notificationRef = useRef<HTMLDivElement>(null);
+	const dispatch = useAppDispatch();
+
+	const onMouseoverHandler = (() => {
+		if (!notification.new) {
+			return;
+		}
+
+		dispatch(lookNotification(notification.id))
+	})
+
+	useEffect(() => {
+		if (notificationRef.current && notification.new) {
+			notificationRef.current.addEventListener('mouseover', onMouseoverHandler);
+		}
+	}, []);
+
 	return (
-		<Card>
+		<Card ref={notificationRef}>
 			<CardBody>
 				<Flex alignItems={'center'} gap={3}>
 					<Heading fontSize={12}>{notificationHeaders[notification.type]}</Heading>
 					{notification.new && <Badge borderRadius={'100%'} width={2} height={2} bg={'blue.200'}/>}
 				</Flex>
 				<Text fontSize={12}>{notificationsTexts[notification.type]}</Text>
-				<Link fontSize={12} as={RouterLink} to={`/theme/${(notification.attributes as any).themeId}`}>Перейти к теме</Link>
+				{notification.type === 'INVITE_MENTOR' &&
+					<>
+					<Link fontSize={12} as={RouterLink} to={`/theme/${(notification.attributes as any).themeId}`}>Перейти к теме</Link>
+					<Flex gap={3} marginTop={2}>
+						<Button fontSize={12} padding={2} variant={'solid'} colorScheme={'blue'}>Принять</Button>
+						<Button fontSize={12} padding={2} variant={'outline'} colorScheme={'red'}>Отказать</Button>
+					</Flex>
+					</>
+				}
 			</CardBody>
 		</Card>
 	)

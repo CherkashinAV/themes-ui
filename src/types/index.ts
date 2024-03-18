@@ -79,6 +79,7 @@ export type Theme = {
 export type NotificationType = 'INVITE_MENTOR' | 'MENTOR_RESPONSE' | 'THEME_STATUS';
 
 export type Notification = {
+	id: number,
 	type: NotificationType,
 	createdAt: Date,
 	attributes: unknown,

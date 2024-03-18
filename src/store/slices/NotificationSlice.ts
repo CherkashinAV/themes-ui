@@ -31,6 +31,19 @@ export const getNotifications = createAsyncThunk<Notification[], void, {rejectVa
 	}
 )
 
+export const lookNotification = createAsyncThunk<number, number, {rejectValue: string}>(
+	'notifications/look',
+	async (id: number, {rejectWithValue}) => {
+		const result = await themesProvider.lookNotification(id);
+
+		if (!result.ok) {
+			return rejectWithValue(result.error.message);
+		}
+
+		return id;
+	}
+)
+
 const notificationSlice = createSlice({
 	name: 'notifications',
 	initialState,
@@ -60,6 +73,15 @@ const notificationSlice = createSlice({
 				state.isSuccess = true;
 				state.notifications = payload;
 				return state;
+			})
+			.addCase(lookNotification.fulfilled, (state, {payload}) => {
+				state.notifications = state.notifications.map((notification) => {
+					if (notification.id === payload) {
+						notification.new = false;
+					}
+
+					return notification;
+				})
 			});
 	}
 });

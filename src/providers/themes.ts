@@ -303,6 +303,23 @@ class ThemesProvider {
 			value: result.value.data
 		}
 	}
+
+	async lookNotification(notificationId: number): AsyncResult<null, ThemesError> {
+		const result = await this._request<Notification[]>({
+			path: 'ui/notifications/look',
+			method: 'patch',
+			body: {notificationId}
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: null
+		}
+	}
 }
 
 export const themesProvider = new ThemesProvider();
