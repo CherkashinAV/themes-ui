@@ -48,7 +48,7 @@ export const lookNotification = createAsyncThunk<number, number, {rejectValue: s
 	}
 )
 
-export const mentorResponse = createAsyncThunk<number, MentorResponsePayload, {rejectValue: string}>(
+export const mentorResponse = createAsyncThunk<{notificationId: number, action: 'accept' | 'reject'}, MentorResponsePayload, {rejectValue: string}>(
 	'mentor/responseToInvitation',
 	async (payload, {rejectWithValue}) => {
 		const result = await themesProvider.mentorResponse(payload);
@@ -57,7 +57,7 @@ export const mentorResponse = createAsyncThunk<number, MentorResponsePayload, {r
 			return rejectWithValue(result.error.message);
 		}
 
-		return payload.notificationId;
+		return {notificationId: payload.notificationId, action: payload.action};
 	}
 );
 
@@ -103,8 +103,9 @@ const notificationSlice = createSlice({
 			.addCase(mentorResponse.fulfilled, (state, {payload}) => {
 				state.isMentorResponseSuccess = true;
 				state.notifications.map((notification) => {
-					if (notification.id === payload) {
+					if (notification.id === payload.notificationId) {
 						notification.interacted = true;
+						(notification.attributes as any)['invitationStatus'] = payload.action === 'accept' ? 'accepted' : 'rejected'
 					}
 
 					return notification;

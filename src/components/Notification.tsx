@@ -47,7 +47,7 @@ const Notification = ({notification}: {notification: NotificationInterface}) => 
 	});
 
 	return (
-		<Card ref={notificationRef}>
+		<Card ref={notificationRef} bg={notification.interacted ? 'gray.50' : 'white'}>
 			<CardBody>
 				<Flex alignItems={'center'} gap={3}>
 					<Heading fontSize={12}>{notificationHeaders[notification.type]}</Heading>
@@ -57,26 +57,32 @@ const Notification = ({notification}: {notification: NotificationInterface}) => 
 					<>
 					<Text fontSize={12}>{notificationsTexts[notification.type]()}</Text>
 					<Link fontSize={12} as={RouterLink} to={`/theme/${(notification.attributes as any).themeId}`}>Перейти к теме</Link>
-					<Flex gap={3} marginTop={2}>
-						<Button
-							fontSize={12}
-							padding={2}
-							variant={'solid'}
-							colorScheme={'blue'}
-							onClick={() => handleMentorResponse('accept')}
-						>
-							Принять
-						</Button>
-						<Button
-							fontSize={12}
-							padding={2}
-							variant={'outline'}
-							colorScheme={'red'}
-							onClick={() => handleMentorResponse('reject')}
-						>
-							Отказать
-						</Button>
-					</Flex>
+					{(notification.attributes as any).invitationStatus ?
+						<Badge fontSize={12} display={'block'} width={'fit-content'} marginTop={2} colorScheme='purple'>
+							{(notification.attributes as any).invitationStatus}
+						</Badge>
+						:
+						<Flex gap={3} marginTop={2}>
+							<Button
+								fontSize={12}
+								padding={2}
+								variant={'solid'}
+								colorScheme={'blue'}
+								onClick={() => handleMentorResponse('accept')}
+							>
+								Принять
+							</Button>
+							<Button
+								fontSize={12}
+								padding={2}
+								variant={'outline'}
+								colorScheme={'red'}
+								onClick={() => handleMentorResponse('reject')}
+							>
+								Отказать
+							</Button>
+						</Flex>
+					}
 					</>
 				}
 
