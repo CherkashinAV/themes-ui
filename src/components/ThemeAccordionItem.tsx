@@ -56,34 +56,36 @@ const ThemeAccordionItem = ({theme}: {theme: Theme}) => {
 							<Heading fontSize={13}>Тип работы</Heading>
 							<Badge fontSize={12} colorScheme={'blue'} textTransform={'none'}>{projectTypeMapping[theme.type as ThemeType]}</Badge>
 						</Flex>
-						{userInfo!.uid === theme.creator.uid && !theme.approver &&
-							<>
-								<Button onClick={onOpen}>Найти ментора</Button>
-								<GetThemeMentorModal theme={theme} isOpen={isOpen} onClose={onClose}/>
-							</>
-						}
 					</Stack>
 				</Box>
 				<AccordionIcon />
 			</AccordionButton>
 			</h2>
-			<AccordionPanel pb={4}>
+			<AccordionPanel pb={4} bg={'gray.50'}>
 				<Stack>
 					<Heading fontSize={15}>Короткое описание</Heading>
 					<Text fontSize={15}>
 						{theme.shortDescription}
 					</Text>
-					<Link
-						as={RouterLink}
-						color={'blue.400'}
-						textDecoration={'none'}
-						_hover={{color: 'blue.500'}}
-						width={'fit-content'}
-						to={`/theme/${theme.id}/`}
-						fontSize={13}
-					>
-						Перейти к теме <ArrowForwardIcon/>
-					</Link>
+					<Flex alignItems={'center'} gap={3} marginTop={5}>
+						{userInfo!.uid === theme.creator.uid && !theme.approver &&
+							<>
+								<Button onClick={onOpen} width={'fit-content'} fontSize={12} colorScheme={'blue'} padding={2} >Найти ментора</Button>
+								<GetThemeMentorModal theme={theme} isOpen={isOpen} onClose={onClose}/>
+							</>
+						}
+						<Link
+							as={RouterLink}
+							color={'blue.400'}
+							textDecoration={'none'}
+							_hover={{color: 'blue.500'}}
+							width={'fit-content'}
+							to={`/theme/${theme.id}/`}
+							fontSize={13}
+						>
+							Перейти к теме <ArrowForwardIcon/>
+						</Link>
+					</Flex>
 				</Stack>
 			</AccordionPanel>
 		</AccordionItem>

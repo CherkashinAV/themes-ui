@@ -56,6 +56,12 @@ export type InviteMentorPayload = {
 	mentorUid: string
 }
 
+export type MentorResponsePayload = {
+	themeId: number,
+	notificationId: number,
+	action: 'accept' | 'reject'
+}
+
 class ThemesProvider {
 	private _baseUrl: string;
 	private _fingerprint: string = '';
@@ -309,6 +315,23 @@ class ThemesProvider {
 			path: 'ui/notifications/look',
 			method: 'patch',
 			body: {notificationId}
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: null
+		}
+	}
+
+	async mentorResponse(payload: MentorResponsePayload): AsyncResult<null, ThemesError> {
+		const result = await this._request({
+			path: 'ui/theme/mentor_invite_response',
+			method: 'post',
+			body: payload
 		});
 
 		if (!result.ok) {

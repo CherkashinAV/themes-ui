@@ -22,7 +22,7 @@ import {
 import {useForm, Controller, SubmitHandler} from 'react-hook-form';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {ThemeType} from '../../types';
-import {createTheme} from '../../store/slices/CreateThemeSlice';
+import {clearState, createTheme} from '../../store/slices/CreateThemeSlice';
 import {useNavigate} from 'react-router-dom';
 import {projectTypeMapping} from '../../utils/themeUtils';
 import LayoutWrapper from '../../components/LayoutWrapper';
@@ -66,6 +66,7 @@ const CreateTheme = () => {
 
 	useEffect(() => {
 		if(isSuccess) {
+			dispatch(clearState());
 			navigate(`/theme/${themeId}`);
 		}
 	}, [isSuccess])

@@ -1,20 +1,35 @@
-import {Card, CardBody, Flex, Heading, Stack, useColorModeValue, Text, Tag, Tooltip, Link, Spinner} from '@chakra-ui/react'
+import {Card, CardBody, Flex, Heading, Stack, useColorModeValue, Text, Tag, Tooltip, Link, Spinner, Alert, AlertIcon, useDisclosure, CloseButton, Box, AlertDescription, AlertTitle, Highlight, Slide} from '@chakra-ui/react'
 import React, {useEffect} from 'react'
 import {matchRole} from '../../utils/authUtils';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {clearState, getProfile} from '../../store/slices/ProfileSlice';
 import {Link as RouterLink, useParams} from 'react-router-dom';
 import LayoutWrapper from '../../components/LayoutWrapper';
+import {EditIcon} from '@chakra-ui/icons';
 
 const ProfileView = () => {
 	const {uid} = useParams();
 	const dispatch = useAppDispatch();
 	const state = useAppSelector((state) => state.profile);
+	const {userInfo} = useAppSelector((state) => state.user);
+
+	const {
+		isOpen: isVisible,
+		onClose,
+		onOpen
+	} = useDisclosure({ defaultIsOpen: false })
 
 	useEffect(() => {
 		dispatch(getProfile(uid!));
+
 		return () => {dispatch(clearState())};
 	}, [])
+
+	useEffect(() => {
+		if (state.currentProfile && state.currentProfile.uid === userInfo!.uid && userInfo!.description === '') {
+			onOpen();
+		}
+	}, [state.currentProfile])
 
   	return (
 		<LayoutWrapper>
@@ -29,13 +44,26 @@ const ProfileView = () => {
 						rounded={"lg"}
 						bg={"white"}
 						boxShadow={"lg"}
-						w={"89%"}
+						w={"90%"}
+						h={'90%'}
 						p={8}
 					>
 						<CardBody>
 							<Stack>
-								<Flex justifyContent={'center'}>
+								<Flex justifyContent={'space-between'} alignItems={'center'}>
 									<Heading>Профиль</Heading>
+									{state.currentProfile.uid === userInfo!.uid &&
+										<Link
+											as={RouterLink}
+											color={'blue.400'}
+											textDecoration={'none'}
+											_hover={{color: 'blue.500'}}
+											width={'fit-content'}
+											to={`/profile/update`}
+										>	
+											<Text color={'blue.400'} _hover={{color: 'blue.500'}} fontSize={15}>Редактировать <EditIcon/></Text>
+										</Link>
+									}
 								</Flex>
 								
 								<Stack spacing={2}>
@@ -88,6 +116,25 @@ const ProfileView = () => {
 							</Stack>
 						</CardBody>
 					</Card>
+					<Slide in={isVisible} transition={{exit: {duration: 1}, enter: {duration: 1}}}>
+						<Alert status='info' width={'fit-content'} position={'absolute'} bottom={10} right={3} borderRadius={5}>
+							<AlertIcon />
+							<Box>
+								<AlertTitle>Внимание</AlertTitle>
+								<AlertDescription>
+									Чтобы пользователи понимали, кто вы такой и что умеете,<br/>
+									заполните <Highlight query='"Обо мне"' styles={{fontWeight: 'bold'}}>"Обо мне"</Highlight> в разделе редактирования профиля 
+								</AlertDescription>
+							</Box>
+							<CloseButton
+								alignSelf='flex-start'
+								position='relative'
+								right={-1}
+								top={-1}
+								onClick={onClose}
+							/>
+						</Alert>
+					</Slide>
 				</Flex>
 				:
 				<Flex

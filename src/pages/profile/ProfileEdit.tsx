@@ -1,7 +1,7 @@
 import React, {ChangeEvent, useEffect, useState} from 'react'
 import {Box, Button, Text, Flex, FormControl, FormLabel, Heading, Input, Stack, useColorModeValue, Card, CardBody, Tag, Highlight, Tooltip, Textarea, Spinner} from '@chakra-ui/react'
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import {matchRole} from '../../utils/authUtils';
 import {updateUser} from '../../store/slices/User';
 import LayoutWrapper from '../../components/LayoutWrapper';
@@ -13,8 +13,14 @@ const ProfileEdit = () => {
     const state = useAppSelector((state) => state.user)
     const [input, setInput] = useState({description: state.userInfo!.description});
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+
     const onSubmit = () => {
         dispatch(updateUser(input))
+            .unwrap()
+            .then(() => {
+                navigate(`/profile/${state.userInfo!.uid}`);
+            })
     };
 
     function inputHandler(e: React.ChangeEvent<HTMLTextAreaElement>) {

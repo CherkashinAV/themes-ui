@@ -83,6 +83,7 @@ export type Notification = {
 	type: NotificationType,
 	createdAt: Date,
 	attributes: unknown,
+	interacted: boolean,
 	new: boolean
 }
 

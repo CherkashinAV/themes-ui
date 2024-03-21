@@ -72,7 +72,7 @@ const GetThemeMentorModal = ({theme, isOpen, onClose}: GetThemeMentorModalProps)
     return (
       <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
-      <ModalContent minW={'80vw'} maxHeight={'80vh'}>
+      <ModalContent minW={'80vw'} minH={'80vh'} maxHeight={'80vh'}>
         <ModalHeader>Список возможных менторов</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
@@ -90,10 +90,11 @@ const GetThemeMentorModal = ({theme, isOpen, onClose}: GetThemeMentorModalProps)
                 width={'100%'}
                 boxShadow={'md'}
                 p={8}
+                height={'60vh'}
               >
-                <CardBody>
-                  <Box marginTop={8} ref={mentorListRef} overflowY={'scroll'} sx={scrollBarSettings}>
-                    <Accordion>
+                <CardBody height={'100%'}>
+                  <Box marginTop={8} ref={mentorListRef} overflowY={'scroll'} sx={scrollBarSettings} height={'100%'}>
+                    <Accordion allowMultiple>
                       {state.mentors.mentors.map((mentor) =>
                         <MentorAccordionItem user={mentor} themeId={theme.id} key={mentor.uid}/>
                       )}

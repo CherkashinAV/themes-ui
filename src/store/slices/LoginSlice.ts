@@ -1,18 +1,22 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {LoginPayload, LoginResponse, authProvider} from '../../providers/auth';
+import {parseJwt} from '../../utils';
+import {JwtPayload} from '../../types';
 
 interface LoginState {
 	isFetching: boolean,
 	isSuccess: boolean,
 	isError: boolean,
-	errorMessage: string
+	errorMessage: string,
+	uid: string
 }
 
 const initialState: LoginState = {
 	isFetching: false,
 	isSuccess: false,
 	isError: false,
-	errorMessage: ''
+	errorMessage: '',
+	uid: ''
 }
 
 export const login = createAsyncThunk<LoginResponse, LoginPayload, {rejectValue: string}>(
@@ -62,6 +66,12 @@ const loginSlice = createSlice({
 			.addCase(login.fulfilled, (state, {payload}) => {
 				state.isFetching = false;
 				state.isSuccess = true;
+				const jwtPayload = parseJwt<JwtPayload>(payload.accessToken);
+
+				if (jwtPayload) {
+					state.uid = jwtPayload.userId;
+				}
+
 				return state;
 			});
 	}

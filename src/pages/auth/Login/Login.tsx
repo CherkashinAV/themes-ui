@@ -21,7 +21,7 @@ const Login = () => {
   const navigate = useNavigate();
   const {register, handleSubmit} = useForm();
 
-  const {isFetching, isSuccess, isError, errorMessage} = useAppSelector((state) => state.login);
+  const {isFetching, isSuccess, isError, errorMessage, uid} = useAppSelector((state) => state.login);
   const onSubmit = async (data: FieldValues) => {
     const loginPayload = await getLoginPayload(data);
     dispatch(login(loginPayload));
@@ -41,7 +41,7 @@ const Login = () => {
 
     if (isSuccess) {
       dispatch(clearState());
-      navigate('/profile/update');
+      navigate(`/profile/${uid}`);
     }
   }, [isError, isSuccess]);
 

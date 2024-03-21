@@ -1,7 +1,7 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {LoginPayload, LoginResponse, authProvider} from '../../providers/auth';
-import {Theme, User} from '../../types';
-import {themesProvider} from '../../providers/themes';
+import {authProvider} from '../../providers/auth';
+import {User} from '../../types';
+import {MentorResponsePayload, themesProvider} from '../../providers/themes';
 import {RootState} from '..';
 
 interface MentorsState {
@@ -49,9 +49,13 @@ export const getMentors = createAsyncThunk<{mentors: User[], lastIndex: number},
 		if (payload.count) {
 			to = lastIndex + payload.count;
 		}
-
-		if (to > mentorUids.length - 1) {
+		
+		if (to > mentorUids.length) {
 			to = mentorUids.length;
+		}
+		
+		if (lastIndex === to) {
+			rejectWithValue('Already fetched');
 		}
 
 		const fetchIds = mentorUids.slice(lastIndex, to);
@@ -105,7 +109,6 @@ const mentorSlice = createSlice({
 				state.lastIndex = payload.lastIndex;
 				return state;
 			});
-
 	}
 });
 

@@ -1,11 +1,13 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {themesProvider} from '../../providers/themes';
+import {MentorResponsePayload, themesProvider} from '../../providers/themes';
 import {Notification} from '../../types';
 
 interface NotificationsState {
 	isFetching: boolean,
 	isSuccess: boolean,
 	isError: boolean,
+	isMentorResponseSuccess: boolean,
+	isMentorResponseError: boolean,
 	errorMessage: string,
 	notifications: Notification[]
 }
@@ -14,6 +16,8 @@ const initialState: NotificationsState = {
 	isFetching: false,
 	isSuccess: false,
 	isError: false,
+	isMentorResponseSuccess: false,
+	isMentorResponseError: false,
 	errorMessage: '',
 	notifications: []
 }
@@ -43,6 +47,19 @@ export const lookNotification = createAsyncThunk<number, number, {rejectValue: s
 		return id;
 	}
 )
+
+export const mentorResponse = createAsyncThunk<number, MentorResponsePayload, {rejectValue: string}>(
+	'mentor/responseToInvitation',
+	async (payload, {rejectWithValue}) => {
+		const result = await themesProvider.mentorResponse(payload);
+
+		if (!result.ok) {
+			return rejectWithValue(result.error.message);
+		}
+
+		return payload.notificationId;
+	}
+);
 
 const notificationSlice = createSlice({
 	name: 'notifications',
@@ -82,6 +99,21 @@ const notificationSlice = createSlice({
 
 					return notification;
 				})
+			})
+			.addCase(mentorResponse.fulfilled, (state, {payload}) => {
+				state.isMentorResponseSuccess = true;
+				state.notifications.map((notification) => {
+					if (notification.id === payload) {
+						notification.interacted = true;
+					}
+
+					return notification;
+				})
+				return state;
+			})
+			.addCase(mentorResponse.rejected, (state) => {
+				state.isMentorResponseError = true;
+				return state;
 			});
 	}
 });

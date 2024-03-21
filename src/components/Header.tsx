@@ -1,6 +1,6 @@
 import {BellIcon, ChevronDownIcon} from '@chakra-ui/icons'
 import {Box, Button, Flex, IconButton, ListItem, Menu, MenuButton, MenuItem, MenuList, UnorderedList, Image, Link, Text, Icon, createIcon, Popover, PopoverTrigger, PopoverContent, Stack, Badge} from '@chakra-ui/react'
-import React from 'react'
+import React, {useEffect} from 'react'
 import logo from '../assets/images/logo.svg';
 import logoutIcon from '../assets/images/logout.svg';
 import {Link as RouterLink, useNavigate} from 'react-router-dom';
@@ -72,7 +72,7 @@ const Header = () => {
 								}
 							</Box>
 						</PopoverTrigger>
-						<PopoverContent overflowY={'scroll'} sx={scrollBarSettings}>
+						<PopoverContent overflowY={'scroll'} sx={scrollBarSettings} maxH={'30vh'}>
 							<Stack gap={3} padding={2}>
 								{notifications.map((notification, idx) => 
 									<Notification key={idx} notification={notification}/>
