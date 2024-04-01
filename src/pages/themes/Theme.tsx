@@ -1,4 +1,4 @@
-import {Box, Card, CardBody, Flex, Heading, Spinner, Stack, Tag, Tooltip, Text, Button, Link, Badge, IconButton} from '@chakra-ui/react';
+import {Box, Card, CardBody, Flex, Heading, Spinner, Stack, Tag, Tooltip, Text, Button, Link, Badge, IconButton, OrderedList, ListItem} from '@chakra-ui/react';
 import React, {useEffect} from 'react'
 import {useParams} from 'react-router-dom'
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
@@ -105,7 +105,7 @@ const Theme = () => {
 								</Flex>
 								<Flex justifyContent={'space-between'}>
 									<Flex gap={5} alignItems={'center'}>
-										<Heading fontSize={15}>Куратор проекта</Heading>
+										<Heading fontSize={15}>Руководитель проекта</Heading>
 										<Badge colorScheme='purple' padding={1.5}>
 											{data?.approver ?
 												`${data?.approver.surname} ${data?.approver.name}`
@@ -197,7 +197,7 @@ const Theme = () => {
 												marginTop={10}
 												sx={scrollBarSettings}
 											>
-												{data!.joinRequests.map((user) => (
+												{data!.joinRequests.map(({user}) => (
 													<Card
 														width={'100%'}
 														key={user.uid}
@@ -231,6 +231,21 @@ const Theme = () => {
 										</CardBody>
 									</Card>
 								</Flex>
+
+								<Box>
+									<Heading fontSize={15}>Методические материаллы</Heading>
+									{data!.teachingMaterials &&
+										<OrderedList mt={'5'}>
+											{data!.teachingMaterials.map((item) => 
+												<ListItem>
+													{item.title} <br/>
+													<Link>{item.link}</Link>
+												</ListItem>
+											)}
+										</OrderedList>
+									}
+								</Box>
+
 								<Stack alignItems={'center'}>
 									{isAlreadyJoined ?
 										(isFetching ?

@@ -41,7 +41,7 @@ const MentorAccordionItem = ({user, themeId}: {user: User, themeId: number}) => 
 			</h2>
 			<AccordionPanel pb={4}>
 				<Stack>
-					<Heading fontSize={15}>Описание ментора</Heading>
+					<Heading fontSize={15}>Описание руководителя</Heading>
 					<Text fontSize={15}>
 						{user.description}
 					</Text>

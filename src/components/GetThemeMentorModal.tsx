@@ -73,7 +73,7 @@ const GetThemeMentorModal = ({theme, isOpen, onClose}: GetThemeMentorModalProps)
       <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent minW={'80vw'} minH={'80vh'} maxHeight={'80vh'}>
-        <ModalHeader>Список возможных менторов</ModalHeader>
+        <ModalHeader>Список возможных рукроводителей</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
             <Stack

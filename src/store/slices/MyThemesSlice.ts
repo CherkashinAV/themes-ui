@@ -1,8 +1,20 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {LoginPayload, LoginResponse, authProvider} from '../../providers/auth';
-import {Theme} from '../../types';
+import {Theme, UserWithDetails} from '../../types';
 import {themesProvider} from '../../providers/themes';
 import {RootState} from '..';
+
+type AcceptRequestPayload = {
+	groupId: number;
+	userUid: string;
+	themeId: number;
+}
+
+type AcceptRequestReturn = {
+	user: UserWithDetails;
+	requestDateTime: string;
+	themeId: number;
+}
 
 interface ThemesState {
 	isFetching: boolean,
@@ -32,6 +44,35 @@ export const getThemesIds = createAsyncThunk<number[], {userUid: string | undefi
 		}
 
 		return result.value;
+	}
+);
+
+export const acceptRequest = createAsyncThunk<AcceptRequestReturn, AcceptRequestPayload, {rejectValue: string}>(
+	'mythemes/acceptRequest',
+	async (payload: AcceptRequestPayload, {rejectWithValue, getState}) => {
+		const state = getState() as RootState;
+		const currentTheme = state.myThemes.themes.find((theme) => theme.id === payload.themeId)
+
+		if (!currentTheme) {
+			return rejectWithValue('No such theme');
+		}
+
+		const user = currentTheme.joinRequests.find(({user}) => user.uid === payload.userUid);
+
+		if (!user) {
+			return rejectWithValue('No such requests');
+		}
+
+		const result = await themesProvider.acceptRequest(payload.groupId, payload.userUid);
+
+		if (!result.ok) {
+			return rejectWithValue(result.error.message);
+		}
+
+		return {
+			...user,
+			themeId: payload.themeId
+		};
 	}
 );
 
@@ -83,6 +124,24 @@ const myThemesSlice = createSlice({
 			.addCase(getThemes.fulfilled, (state, {payload}) => {
 				state.themes = payload;
 				state.isSuccess = true;
+			})
+			.addCase(acceptRequest.rejected, (state, {payload}) => {
+				if (payload) {
+					state.errorMessage = payload;
+				}
+				state.isError = true;
+			})
+			.addCase(acceptRequest.fulfilled, (state, {payload}) => {
+				state.isSuccess = true;
+				state.themes = state.themes!.map((theme) => {
+					if (theme.id === payload.themeId) {
+						theme.joinRequests = theme.joinRequests.filter((request) => request.user.uid !== payload.user.uid);
+						theme.executorsGroup.participants.push(payload.user)
+					}
+
+					return theme;
+				});
+				return state;
 			});
 
 	}

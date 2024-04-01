@@ -1,9 +1,11 @@
-import {Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Card, CardBody, Flex, Heading, Stack, useColorModeValue} from '@chakra-ui/react'
+import {Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Badge, Box, Card, CardBody, Flex, Heading, Stack, Table, Tbody, Td, Th, Thead, Tr, useColorModeValue} from '@chakra-ui/react'
 import React, {useEffect, useRef, useState} from 'react'
 import {useAppDispatch, useAppSelector} from '../../store/hooks'
 import ThemeAccordionItem from '../../components/ThemeAccordionItem'
 import {getThemes, getThemesIds} from '../../store/slices/MyThemesSlice'
 import LayoutWrapper from '../../components/LayoutWrapper'
+import {DateTime} from 'luxon'
+import MentorThemesTable from '../../components/MentorThemesTable'
 
 const scrollBarSettings = {
 	'&::-webkit-scrollbar': {
@@ -40,16 +42,21 @@ const MyThemes = () => {
 						p={8}
 					>
 						<CardBody>
-						<Flex justifyContent={'center'}>
-							<Heading fontSize={20}>Список моих тем</Heading>
-						</Flex>
-						<Box marginTop={8} minH={'60vh'} maxH={'60vh'} overflowY={'scroll'} sx={scrollBarSettings}>
-							<Accordion>
-							{themes.map((theme) =>
-								<ThemeAccordionItem theme={theme} key={theme.id}/>
-							)}
-							</Accordion>
-						</Box>
+							<Flex justifyContent={'center'} marginBottom={8}>
+								<Heading fontSize={20}>Список моих тем</Heading>
+							</Flex>
+							
+							{userInfo?.role === 'mentor' ?
+								<MentorThemesTable themes={themes}/>
+								:
+								<Box marginTop={8} minH={'60vh'} maxH={'60vh'} overflowY={'scroll'} sx={scrollBarSettings}>
+									<Accordion>
+									{themes.map((theme) =>
+										<ThemeAccordionItem theme={theme} key={theme.id}/>
+									)}
+									</Accordion>
+								</Box>
+							}
 						</CardBody>
 					</Card>
 				</Flex>

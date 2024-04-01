@@ -1,4 +1,4 @@
-import {AsyncResult, Theme, ThemeType, User,  UserWithDetails, Notification} from '../types';
+import {AsyncResult, Theme, ThemeType, User,  UserWithDetails, Notification, TeachingMaterial, DateInterval} from '../types';
 import axios, {AxiosResponse, Method} from 'axios';
 import {getFingerPrint} from '../utils/authUtils';
 import {Filters} from '../store/slices/ThemesSlice';
@@ -28,6 +28,9 @@ export type CreateThemePayload = {
 	description: string,
 	executorsCount: number,
 	type: ThemeType,
+	teachingMaterials: TeachingMaterial[] | null,
+	joinDate: string,
+	realizationDates: DateInterval,
 	private: boolean
 }
 
@@ -38,7 +41,7 @@ export type CreateThemeResponse = {
 
 export type JoinRequestResponse = {
 	status: 'OK',
-	value: UserWithDetails
+	value: {user: UserWithDetails, requestDateTime: string}
 }
 
 export type UpdateThemePayload = {
@@ -47,6 +50,9 @@ export type UpdateThemePayload = {
 	shortDescription: string,
 	description: string,
 	private: boolean,
+	teachingMaterials: TeachingMaterial[] | null,
+	joinDate: string,
+	realizationDates: DateInterval,
 	executorsCount: number,
 	type: ThemeType
 }
@@ -197,7 +203,7 @@ class ThemesProvider {
 		}
 	}
 
-	async joinRequest(themeId: number): AsyncResult<UserWithDetails, ThemesError> {
+	async joinRequest(themeId: number): AsyncResult<{user: UserWithDetails, requestDateTime: string}, ThemesError> {
 		const result = await this._request<JoinRequestResponse>({
 			path: 'ui/theme/join_request',
 			method: 'POST',

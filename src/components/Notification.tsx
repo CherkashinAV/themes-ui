@@ -6,13 +6,13 @@ import {useAppDispatch} from '../store/hooks';
 import {lookNotification, mentorResponse} from '../store/slices/NotificationSlice';
 
 const notificationHeaders: Record<NotificationType, string> = {
-	INVITE_MENTOR: 'Приглашение ментора',
-	MENTOR_RESPONSE: 'Решение ментора',
+	INVITE_MENTOR: 'Приглашение руководителя',
+	MENTOR_RESPONSE: 'Решение руководителя',
 	THEME_STATUS: ''
 }
 
 const notificationsTexts: Record<NotificationType, (...args: any[]) => string> = {
-	INVITE_MENTOR: () => 'Вы были приглашены в качестве ментора',
+	INVITE_MENTOR: () => 'Вы были приглашены в качестве руководителя проекта',
 	MENTOR_RESPONSE: (name: string, status: 'accepted' | 'rejected') => 
 		`${name} ${status === 'accepted' ? 'принял/a' : 'отклонил/a'} ваше приглашение`,
 	THEME_STATUS: () => ''

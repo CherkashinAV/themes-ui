@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import {
 	Flex,
 	Card,
@@ -17,15 +17,19 @@ import {
 	SliderFilledTrack,
 	SliderThumb,
 	Select,
-	Button
+	Button,
+	OrderedList,
+	ListItem,
+	IconButton
 } from '@chakra-ui/react';
 import {useForm, Controller, SubmitHandler} from 'react-hook-form';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {ThemeType} from '../../types';
+import {TeachingMaterial, ThemeType} from '../../types';
 import {clearState, createTheme} from '../../store/slices/CreateThemeSlice';
 import {useNavigate} from 'react-router-dom';
 import {projectTypeMapping} from '../../utils/themeUtils';
 import LayoutWrapper from '../../components/LayoutWrapper';
+import {CloseIcon} from '@chakra-ui/icons';
 
 type FormInput = {
 	title: string,
@@ -33,6 +37,9 @@ type FormInput = {
 	description: string,
 	executorsCount: number,
 	type: ThemeType,
+	joinDate: string,
+	realizationFrom: string,
+	realizationTo: string,
 	private: string
 }
 
@@ -44,12 +51,41 @@ const CreateTheme = () => {
 			shortDescription: '',
 			description: '',
 			executorsCount: 1,
+			joinDate: '',
+			realizationFrom: '',
+			realizationTo: '',
 			type: 'course',
 			private: 'false'
 		}
 	});
 	const dispatch = useAppDispatch();
 	const {isFetching, isSuccess, themeId, isError, errorMessage} = useAppSelector((state) => state.createTheme);
+
+	const [teachingMaterials, setMaterials] = useState<TeachingMaterial[]>([]);
+	const materialTitleRef = useRef<HTMLInputElement>(null);
+	const materialLinkRef = useRef<HTMLInputElement>(null);
+
+	const addNewMaterial = () => {
+		if (materialTitleRef.current && materialLinkRef.current) {
+			const newMaterial: TeachingMaterial = {
+				title: materialTitleRef.current.value,
+				link: materialLinkRef.current.value
+			} 
+
+			if (newMaterial.link === '' || newMaterial.title === '') {
+				return;
+			}
+
+			setMaterials((prev) => [
+				...prev,
+				newMaterial
+			]);
+		}
+	};
+
+	const deleteMaterial = (link: string) => {
+		setMaterials((prev) => prev.filter((item) => item.link !== link));
+	}
 
 	const labelStyles = {
 		mt: '2',
@@ -60,7 +96,13 @@ const CreateTheme = () => {
 	const onSubmit: SubmitHandler<FormInput> = async (data) => {
 		dispatch(createTheme({
 			...data,
-			private: data.private === 'true'
+			private: data.private === 'true',
+			teachingMaterials: teachingMaterials[0] ? teachingMaterials : null,
+			joinDate: data.joinDate,
+			realizationDates: {
+				from: data.realizationFrom,
+				to: data.realizationTo
+			}
 		}));
 	};
 
@@ -190,6 +232,55 @@ const CreateTheme = () => {
 									</Box>
 
 									<Box>
+										<Text>Прием заявок до</Text>
+										<Controller
+											name='joinDate'
+											control={control}
+											render={({field}) => (
+												<Input
+													{...field}
+													width={'200px'}
+													placeholder="Select Date and Time"
+													size="md"
+													type="date"
+												/>
+											)}
+										/>
+										
+									</Box>
+
+									<Box>
+										<Text>Сроки реализации проекта</Text>
+										<Stack w={'200px'}>
+											<Controller
+												name='realizationFrom'
+												control={control}
+												render={({field}) => (
+													<Input
+														{...field}
+														placeholder="Select Date and Time"
+														size="md"
+														type="date"
+													/>
+												)}
+											/>
+
+											<Controller
+												name='realizationTo'
+												control={control}
+												render={({field}) => (
+													<Input
+														{...field}
+														placeholder="Select Date and Time"
+														size="md"
+														type="date"
+													/>
+												)}
+											/>
+										</Stack>
+									</Box>
+
+									<Box>
 										<Controller
 											name='private'
 											control={control}
@@ -200,6 +291,32 @@ const CreateTheme = () => {
 											)}
 										/>
 										
+									</Box>
+
+									<Box>
+										<Text>Методические материаллы</Text>
+										<Stack>
+											<OrderedList>
+												{teachingMaterials.map(({title, link}, idx) => 
+													<Flex key={idx} justifyContent={'space-between'} alignItems={'center'}>
+														<ListItem>
+															{title} <br/> URL: {link}
+														</ListItem>
+														<IconButton
+															size={'sm'}
+															colorScheme='red'
+															variant={'outline'}
+															aria-label='Delete teaching material'
+															icon={<CloseIcon/>}
+															onClick={() => deleteMaterial(link)}
+														/>
+													</Flex>
+												)}
+											</OrderedList>
+											<Input ref={materialTitleRef} name='title'/>
+											<Input ref={materialLinkRef} name='link'/>
+											<Button width={'fit-content'} onClick={addNewMaterial}>Добавить</Button>
+										</Stack>
 									</Box>
 
 									<Flex justifyContent={'center'} marginTop={6}>

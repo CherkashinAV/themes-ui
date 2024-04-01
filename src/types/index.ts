@@ -60,6 +60,16 @@ export type Group = {
 export type ThemeStatus = 'recruiting' | 'staffed' | 'in progress' | 'completed';
 export type ThemeType = 'course' | 'graduation' | 'contest' | 'pet' | 'hackathon';
 
+export type TeachingMaterial = {
+	title: string;
+	link: string;
+};
+
+export type DateInterval = {
+	from: string;
+	to: string;
+}
+
 export type Theme = {
 	id: number;
 	type: ThemeType;
@@ -70,10 +80,13 @@ export type Theme = {
 	approver?: UserWithDetails;
 	creator: UserWithDetails;
 	private: boolean;
+	teachingMaterials: TeachingMaterial[] | null;
+	joinDate: string;
+	realizationDates: DateInterval;
 	executorsGroup: Group;
-	joinRequests: UserWithDetails[];
-	createdAt: Date;
-	updatedAt: Date;
+	joinRequests: {user: UserWithDetails, requestDateTime: string}[];
+	createdAt: string;
+	updatedAt: string;
 }
 
 export type NotificationType = 'INVITE_MENTOR' | 'MENTOR_RESPONSE' | 'THEME_STATUS';
@@ -81,7 +94,7 @@ export type NotificationType = 'INVITE_MENTOR' | 'MENTOR_RESPONSE' | 'THEME_STAT
 export type Notification = {
 	id: number,
 	type: NotificationType,
-	createdAt: Date,
+	createdAt: string,
 	attributes: unknown,
 	interacted: boolean,
 	new: boolean

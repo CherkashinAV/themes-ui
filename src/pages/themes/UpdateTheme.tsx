@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react'
+import React, {useEffect, useMemo, useRef, useState} from 'react'
 import {
 	Flex,
 	Card,
@@ -18,16 +18,20 @@ import {
 	SliderThumb,
 	Select,
 	Button,
-	Spinner
+	Spinner,
+	OrderedList,
+	IconButton,
+	ListItem
 } from '@chakra-ui/react';
 import {useForm, Controller, SubmitHandler, UseFormReturn} from 'react-hook-form';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {ThemeType} from '../../types';
+import {DateInterval, TeachingMaterial, ThemeType} from '../../types';
 import {useNavigate, useParams} from 'react-router-dom';
 import {projectTypeMapping} from '../../utils/themeUtils';
 import {updateTheme} from '../../store/slices/UpdateThemeSlice';
 import {getTheme} from '../../store/slices/ThemeSlice';
 import LayoutWrapper from '../../components/LayoutWrapper';
+import {CloseIcon} from '@chakra-ui/icons';
 
 type FormInput = {
 	title: string,
@@ -35,7 +39,10 @@ type FormInput = {
 	description: string,
 	executorsCount: number,
 	type: ThemeType,
-	private: string
+	private: string,
+	joinDate: string,
+	realizationFrom: string;
+	realizationTo: string;
 }
 
 const UpdateTheme = () => {
@@ -45,6 +52,32 @@ const UpdateTheme = () => {
 	const {isFetching, isSuccess, isError, errorMessage} = useAppSelector((state) => state.updateTheme);
 	const {data} = useAppSelector((state) => state.theme);
 
+	const [teachingMaterials, setMaterials] = useState<TeachingMaterial[]>(data?.teachingMaterials ?? []);
+	const materialTitleRef = useRef<HTMLInputElement>(null);
+	const materialLinkRef = useRef<HTMLInputElement>(null);
+
+	const addNewMaterial = () => {
+		if (materialTitleRef.current && materialLinkRef.current) {
+			const newMaterial: TeachingMaterial = {
+				title: materialTitleRef.current.value,
+				link: materialLinkRef.current.value
+			} 
+
+			if (newMaterial.link === '' || newMaterial.title === '') {
+				return;
+			}
+
+			setMaterials((prev) => [
+				...prev,
+				newMaterial
+			]);
+		}
+	};
+
+	const deleteMaterial = (link: string) => {
+		setMaterials((prev) => prev.filter((item) => item.link !== link));
+	};
+
 	const formControls = useForm<FormInput>({
 		defaultValues: useMemo(() => {
 			return {
@@ -53,6 +86,9 @@ const UpdateTheme = () => {
 				description: data?.description,
 				executorsCount: data?.executorsGroup.size,
 				type: data?.type,
+				joinDate: data?.joinDate,
+				realizationFrom: data?.realizationDates.from,
+				realizationTo: data?.realizationDates.to,
 				private: data?.private.toString()
 			}
 		}, [data])
@@ -68,7 +104,13 @@ const UpdateTheme = () => {
 		dispatch(updateTheme({
 			id: data!.id,
 			...formData,
-			private: formData.private === 'true'
+			teachingMaterials: teachingMaterials[0] ? teachingMaterials : null,
+			private: formData.private === 'true',
+			joinDate: formData.joinDate,
+			realizationDates: {
+				from: formData.realizationFrom,
+				to: formData.realizationTo
+			}
 		}));
 	};
 
@@ -204,6 +246,55 @@ const UpdateTheme = () => {
 										</Box>
 
 										<Box>
+											<Text>Прием заявок до</Text>
+											<Controller
+												name='joinDate'
+												control={formControls.control}
+												render={({field}) => (
+													<Input
+														{...field}
+														width={'200px'}
+														placeholder="Select Date and Time"
+														size="md"
+														type="date"
+													/>
+												)}
+											/>
+											
+										</Box>
+
+										<Box>
+											<Text>Сроки реализации проекта</Text>
+											<Stack w={'200px'}>
+												<Controller
+													name='realizationFrom'
+													control={formControls.control}
+													render={({field}) => (
+														<Input
+															{...field}
+															placeholder="Select Date and Time"
+															size="md"
+															type="date"
+														/>
+													)}
+												/>
+
+												<Controller
+													name='realizationTo'
+													control={formControls.control}
+													render={({field}) => (
+														<Input
+															{...field}
+															placeholder="Select Date and Time"
+															size="md"
+															type="date"
+														/>
+													)}
+												/>
+											</Stack>
+										</Box>
+
+										<Box>
 											<Controller
 												name='private'
 												control={formControls.control}
@@ -214,6 +305,32 @@ const UpdateTheme = () => {
 												)}
 											/>
 											
+										</Box>
+
+										<Box>
+											<Text>Методические материаллы</Text>
+											<Stack>
+												<OrderedList>
+													{teachingMaterials.map(({title, link}, idx) => 
+														<Flex key={idx} justifyContent={'space-between'} alignItems={'center'}>
+															<ListItem>
+																{title} <br/> URL: {link}
+															</ListItem>
+															<IconButton
+																size={'sm'}
+																colorScheme='red'
+																variant={'outline'}
+																aria-label='Delete teaching material'
+																icon={<CloseIcon/>}
+																onClick={() => deleteMaterial(link)}
+															/>
+														</Flex>
+													)}
+												</OrderedList>
+												<Input ref={materialTitleRef} name='title'/>
+												<Input ref={materialLinkRef} name='link'/>
+												<Button width={'fit-content'} onClick={addNewMaterial}>Add</Button>
+											</Stack>
 										</Box>
 
 										<Flex justifyContent={'center'} marginTop={6}>
