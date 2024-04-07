@@ -4,7 +4,7 @@ import UAParser from 'ua-parser-js'
 import {FieldValues} from 'react-hook-form';
 
 export function getRegisterPayload(formData: FieldValues): RegisterPayload {
-	if (formData.code && formData.code !== '') {
+	if (formData.invitationCode && formData.invitationCode !== '') {
 		return {
 			email: formData.email,
 			password: formData.password,

@@ -100,6 +100,22 @@ export type Notification = {
 	new: boolean
 }
 
+export type MemberInvitationInfo = {
+	name: string;
+	email: string;
+	role: string;
+	status: 'NOT_SENT' | 'SENT' | 'ERROR';
+}
+
+export type Rule = {
+	joinDate: string;
+	realizationDates: DateInterval;
+	title: string;
+	type: ThemeType;
+	expirationDate: string;
+	downloadLink: string;
+}
+
 type OkResult<T = null> = {
 	ok: true,
 	value: T

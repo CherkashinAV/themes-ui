@@ -1,7 +1,8 @@
-import {AsyncResult, Theme, ThemeType, User,  UserWithDetails, Notification, TeachingMaterial, DateInterval} from '../types';
+import {AsyncResult, Theme, ThemeType, User,  UserWithDetails, Notification, TeachingMaterial, DateInterval, Rule} from '../types';
 import axios, {AxiosResponse, Method} from 'axios';
 import {getFingerPrint} from '../utils/authUtils';
 import {Filters} from '../store/slices/ThemesSlice';
+import {Role} from './auth';
 
 export type ThemesErrorStatus = |
 	'UNAUTHORIZED' |
@@ -67,6 +68,24 @@ export type MentorResponsePayload = {
 	notificationId: number,
 	action: 'accept' | 'reject'
 }
+
+export type InviteMemberPayload = {
+	email: string;
+	name: string;
+	surname: string;
+	role: Role;
+	linkToRegisterForm: string;
+};
+
+export type CreateRulePayload = {
+	title: string;
+	type: ThemeType;
+	expirationDate: string;
+	joinDate: string;
+	realizationDates: DateInterval;
+	downloadLink: string;
+	organizationId: number;
+};
 
 class ThemesProvider {
 	private _baseUrl: string;
@@ -347,6 +366,57 @@ class ThemesProvider {
 		return {
 			ok: true,
 			value: null
+		}
+	}
+
+	async inviteMember(payload: InviteMemberPayload): AsyncResult<null, ThemesError> {
+		const result = await this._request({
+			path: 'admin/invite',
+			method: 'post',
+			body: payload
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: null
+		}
+	}
+
+	async createRule(payload: CreateRulePayload): AsyncResult<null, ThemesError> {
+		const result = await this._request({
+			path: 'admin/create_rule',
+			method: 'post',
+			body: payload
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: null
+		}
+	}
+
+	async getRules(organizationId: number): AsyncResult<Rule[], ThemesError> {
+		const result = await this._request<Rule[]>({
+			path: 'admin/rules',
+			method: 'get',
+			query: {organizationId: String(organizationId)}
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: result.value.data
 		}
 	}
 }

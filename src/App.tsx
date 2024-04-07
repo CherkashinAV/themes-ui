@@ -11,13 +11,13 @@ import Themes from './pages/themes/Themes';
 import UpdateTheme from './pages/themes/UpdateTheme';
 import MyThemes from './pages/themes/MyThemes';
 import ProfileView from './pages/profile/ProfileView';
-import Test from './pages/Test';
+import Moderation from './pages/Moderation';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path='/' element={<Test/>}/>
+        <Route path='/'/>
         <Route path='auth'>
           <Route path='register' element={<Register/>}/>
           <Route path='login' element={<Login/>}/>
@@ -37,6 +37,8 @@ function App() {
                 <Route path='my' element={<MyThemes/>}/>
                 <Route path=':themeId/find_mentor'/>
             </Route>
+
+            <Route path='moderate' element={<Moderation/>}/>
         </Route>
       </Routes>
     </BrowserRouter>
