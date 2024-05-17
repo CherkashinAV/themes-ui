@@ -2,7 +2,6 @@ import React, {useEffect, useMemo, useRef, useState} from 'react'
 import {
 	Flex,
 	Card,
-	useColorModeValue,
 	CardBody,
 	Stack,
 	Heading,
@@ -23,15 +22,16 @@ import {
 	IconButton,
 	ListItem
 } from '@chakra-ui/react';
-import {useForm, Controller, SubmitHandler, UseFormReturn} from 'react-hook-form';
+import {useForm, Controller, SubmitHandler} from 'react-hook-form';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {DateInterval, TeachingMaterial, ThemeType} from '../../types';
-import {useNavigate, useParams} from 'react-router-dom';
+import {TeachingMaterial, ThemeType} from '../../types';
+import {Link, useNavigate, useParams} from 'react-router-dom';
 import {projectTypeMapping} from '../../utils/themeUtils';
 import {updateTheme} from '../../store/slices/UpdateThemeSlice';
-import {getTheme} from '../../store/slices/ThemeSlice';
 import LayoutWrapper from '../../components/LayoutWrapper';
-import {CloseIcon} from '@chakra-ui/icons';
+import {CloseIcon, DownloadIcon} from '@chakra-ui/icons';
+import {getRules} from '../../store/slices/RulesSlice';
+import {clearState} from '../../store/slices/ThemeSlice';
 
 type FormInput = {
 	title: string,
@@ -43,6 +43,7 @@ type FormInput = {
 	joinDate: string,
 	realizationFrom: string;
 	realizationTo: string;
+	rule: string;
 }
 
 const UpdateTheme = () => {
@@ -51,6 +52,8 @@ const UpdateTheme = () => {
 	const dispatch = useAppDispatch();
 	const {isFetching, isSuccess, isError, errorMessage} = useAppSelector((state) => state.updateTheme);
 	const {data} = useAppSelector((state) => state.theme);
+	const {rules} = useAppSelector((state) => state.rules);
+	const {userInfo} = useAppSelector((state) => state.user);
 
 	const [teachingMaterials, setMaterials] = useState<TeachingMaterial[]>(data?.teachingMaterials ?? []);
 	const materialTitleRef = useRef<HTMLInputElement>(null);
@@ -86,13 +89,16 @@ const UpdateTheme = () => {
 				description: data?.description,
 				executorsCount: data?.executorsGroup.size,
 				type: data?.type,
-				joinDate: data?.joinDate,
-				realizationFrom: data?.realizationDates.from,
-				realizationTo: data?.realizationDates.to,
-				private: data?.private.toString()
+				joinDate: data?.joinDate ?? '',
+				realizationFrom: data?.realizationDates?.from ?? '',
+				realizationTo: data?.realizationDates?.to ?? '',
+				private: data?.private.toString(),
+				rule: data?.ruleId?.toString() ?? ''
 			}
 		}, [data])
 	});
+
+	const currentRule = formControls.watch('rule');
 
 	const labelStyles = {
 		mt: '2',
@@ -101,16 +107,19 @@ const UpdateTheme = () => {
 	};
 
 	const onSubmit: SubmitHandler<FormInput> = async (formData) => {
+		console.log(typeof formData.private)
+		dispatch(clearState())
 		dispatch(updateTheme({
 			id: data!.id,
 			...formData,
 			teachingMaterials: teachingMaterials[0] ? teachingMaterials : null,
-			private: formData.private === 'true',
+			private: typeof formData.private === 'boolean' ? formData.private : formData.private === 'true',
 			joinDate: formData.joinDate,
 			realizationDates: {
 				from: formData.realizationFrom,
 				to: formData.realizationTo
-			}
+			},
+			ruleId: formData.rule === '' ? null : parseInt(formData.rule, 10)
 		}));
 	};
 
@@ -129,27 +138,50 @@ const UpdateTheme = () => {
 	useEffect(() => {
 	}, [data]);
 
+	useEffect(() => {
+		dispatch(getRules());	
+	}, []);
+
+	useEffect(() => {
+		if (currentRule !== '' && rules) {
+			const rule = rules.find((rule) => rule.id === parseInt(currentRule, 10))!;
+			formControls.setValue('joinDate', rule.joinDate);
+			formControls.setValue('realizationFrom', rule.realizationDates.from);
+			formControls.setValue('realizationTo', rule.realizationDates.to);
+			formControls.setValue('type', rule.type);
+			formControls.setValue('private', 'true');
+		} else {
+			formControls.resetField('joinDate');
+			formControls.resetField('realizationFrom');
+			formControls.resetField('realizationTo');
+			formControls.resetField('type');
+			formControls.resetField('private');
+		}
+	}, [currentRule]);
+
 	return (
 		<LayoutWrapper>
-			{data ?
+			{(data && rules) ?
 				<Flex
 					h={'100%'}
 					align={"center"}
 					justify={"center"}
 					bg="gray.50"
+					mt={5}
+					mb={5}
 				>
 					<Card
 						rounded={"lg"}
 						bg={"white"}
 						boxShadow={"lg"}
-						w={"60%"}
+						w={"65%"}
 						p={8}
 					>
 						<CardBody>
 							<Stack>
 								<Heading textAlign={'center'} marginBottom={10}>Редактирование темы</Heading>
 								<form onSubmit={formControls.handleSubmit(onSubmit)}>
-									<Stack spacing={8}>
+									<Stack spacing={5}>
 										<Box>
 											<Text>Название</Text>
 											<Controller
@@ -228,12 +260,42 @@ const UpdateTheme = () => {
 										</Box>
 
 										<Box>
+											<Text>Регламент</Text>
+											<Flex gap={3} width={'100%'}>
+												<Controller
+													name="rule"
+													control={formControls.control}
+													render={({field}) => (
+														<Select {...field}>
+															<option value=''>Нет</option>
+															{rules && rules.map(
+																(rule) => {
+																	return <option key={rule.id} value={rule.id}>{rule.title}</option>
+																})
+															}
+														</Select>
+													)}
+												/>
+
+												{currentRule !== '' &&
+													<IconButton 
+														as={Link}
+														to={rules.find((rule) => rule.id === parseInt(currentRule, 10))!.downloadLink} 
+														icon={<DownloadIcon />} 
+														aria-label='download-rule'
+														variant={'outline'}
+													/>
+												}
+											</Flex>
+										</Box>
+
+										<Box>
 											<Text>Тип работы</Text>
 											<Controller
 												name="type"
 												control={formControls.control}
 												render={({field}) => (
-													<Select {...field}>
+													<Select {...field} disabled={currentRule !== ''}>
 														{Object.entries(projectTypeMapping).map(
 															([key, value]) => {
 																return <option key={key} value={key}>{value}</option>
@@ -245,61 +307,70 @@ const UpdateTheme = () => {
 											
 										</Box>
 
-										<Box>
-											<Text>Прием заявок до</Text>
-											<Controller
-												name='joinDate'
-												control={formControls.control}
-												render={({field}) => (
-													<Input
-														{...field}
-														width={'200px'}
-														placeholder="Select Date and Time"
-														size="md"
-														type="date"
+										<Flex justifyContent={'space-between'}>
+											<Box>
+												<Text>Прием заявок до</Text>
+												<Controller
+													name='joinDate'
+													control={formControls.control}
+													render={({field}) => (
+														<Input
+															{...field}
+															disabled={currentRule !== ''}
+															width={'250px'}
+															placeholder="Select Date and Time"
+															size="md"
+															type="date"
+														/>
+													)}
+												/>
+												
+											</Box>
+
+											<Box>
+												<Text>Сроки реализации проекта</Text>
+												<Flex w={'500px'} gap={3}>
+													<Controller
+														name='realizationFrom'
+														control={formControls.control}
+														render={({field}) => (
+															<Input
+																{...field}
+																disabled={currentRule !== ''}
+																placeholder="Select Date and Time"
+																size="md"
+																type="date"
+															/>
+														)}
 													/>
-												)}
-											/>
-											
-										</Box>
 
-										<Box>
-											<Text>Сроки реализации проекта</Text>
-											<Stack w={'200px'}>
-												<Controller
-													name='realizationFrom'
-													control={formControls.control}
-													render={({field}) => (
-														<Input
-															{...field}
-															placeholder="Select Date and Time"
-															size="md"
-															type="date"
-														/>
-													)}
-												/>
-
-												<Controller
-													name='realizationTo'
-													control={formControls.control}
-													render={({field}) => (
-														<Input
-															{...field}
-															placeholder="Select Date and Time"
-															size="md"
-															type="date"
-														/>
-													)}
-												/>
-											</Stack>
-										</Box>
-
+													<Controller
+														name='realizationTo'
+														control={formControls.control}
+														render={({field}) => (
+															<Input
+																{...field}
+																disabled={currentRule !== ''}
+																placeholder="Select Date and Time"
+																size="md"
+																type="date"
+															/>
+														)}
+													/>
+												</Flex>
+											</Box>
+										</Flex>
 										<Box>
 											<Controller
 												name='private'
 												control={formControls.control}
 												render={({field}) => (
-													<Switch {...field} name='private' defaultChecked={data!.private}>
+													<Switch
+														{...field}
+														name='private'
+														defaultChecked={data!.private}
+														disabled={currentRule !== '' || userInfo!.organization.id === 1}
+													>
 														Сделать приватной темой для вашей организации
 													</Switch>
 												)}
@@ -327,9 +398,11 @@ const UpdateTheme = () => {
 														</Flex>
 													)}
 												</OrderedList>
-												<Input ref={materialTitleRef} name='title'/>
-												<Input ref={materialLinkRef} name='link'/>
-												<Button width={'fit-content'} onClick={addNewMaterial}>Add</Button>
+												<Flex gap={3}>
+													<Input ref={materialTitleRef} placeholder='Название' name='title'/>
+													<Input ref={materialLinkRef} placeholder='Ссылка' name='link'/>
+													<Button width={'fit-content'} onClick={addNewMaterial}>+</Button>
+												</Flex>
 											</Stack>
 										</Box>
 

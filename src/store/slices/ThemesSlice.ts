@@ -19,7 +19,8 @@ interface ThemesState {
 	themeIds: number[],
 	loadCount: number,
 	lastIndex: number,
-	filters: Filters | null
+	filters: Filters | null,
+	search: string | null;
 }
 
 const initialState: ThemesState = {
@@ -31,14 +32,15 @@ const initialState: ThemesState = {
 	themeIds: [],
 	loadCount: 10,
 	lastIndex: 0,
-	filters: null
+	filters: null,
+	search: null
 }
 
-export const getThemesIds = createAsyncThunk<number[], {userUid: string | undefined}, {rejectValue: string}>(
+export const getThemesIds = createAsyncThunk<number[], {orgId: number, userUid: string | undefined}, {rejectValue: string}>(
 	'themes/getIds',
-	async (payload: {userUid?: string}, {rejectWithValue, getState}) => {
-		const {filters} = (getState() as RootState).themes;
-		const result = await themesProvider.getThemes(payload.userUid, filters ?? undefined);
+	async (payload: {orgId: number, userUid?: string}, {rejectWithValue, getState}) => {
+		const {filters, search} = (getState() as RootState).themes;
+		const result = await themesProvider.getThemes(payload.orgId, payload.userUid, filters ?? undefined, search ?? undefined);
 
 		if (!result.ok) {
 			return rejectWithValue(result.error.message);
@@ -89,11 +91,14 @@ const themesSlice = createSlice({
 			state.errorMessage = '';
 			state.lastIndex = 0;
 			state.filters = null;
-
+			state.search = null;
 			return state;
 		},
 		setFilters(state, action: PayloadAction<Filters>) {
 			state.filters = action.payload;
+		},
+		setSearch(state, action: PayloadAction<string>) {
+			state.search = action.payload;
 		}
 	},
 	extraReducers: (builder) => {
@@ -129,6 +134,6 @@ const themesSlice = createSlice({
 	}
 });
 
-export const {clearState, setFilters} = themesSlice.actions;
+export const {clearState, setFilters, setSearch} = themesSlice.actions;
 
 export default themesSlice.reducer;

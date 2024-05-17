@@ -3,6 +3,7 @@ import React from 'react'
 import {User} from '../types'
 import {Link as RouterLink} from 'react-router-dom';
 import {themesProvider} from '../providers/themes';
+import secrets from '../secrets/secrets.json'
 
 const MentorAccordionItem = ({user, themeId}: {user: User, themeId: number}) => {
 	const inviteMentorHandler = (mentorUid: string, themeId: number) => {
@@ -18,7 +19,7 @@ const MentorAccordionItem = ({user, themeId}: {user: User, themeId: number}) => 
 			<AccordionButton>
 				<Box as="span" flex='1' textAlign='left'>
 					<Flex alignItems={'center'} gap={3}>
-						<Heading fontSize={16}>{`${user.name} ${user.surname}`}</Heading>
+						<Heading fontSize={16}>{`${user.surname} ${user.name} ${user.patronymic}`}</Heading>
 						<Link as={RouterLink} to="/profile">
 								<Tooltip 
 									label={user.organization.fullName}

@@ -66,9 +66,6 @@ const ResetPassword = () => {
                 p={8}
             >
                 <Stack spacing={4}>
-                    <Box>
-                        <Text textAlign={'center'}>Введите новый пароль и мы его сеним</Text>
-                    </Box>
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <Stack spacing={4}>
                             <FormControl id="password" isRequired>

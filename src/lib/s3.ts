@@ -1,8 +1,7 @@
 import {GetObjectCommand, S3Client} from "@aws-sdk/client-s3";
 import secrets from '../secrets/secrets.json'
 import {
-	getSignedUrl,
-	S3RequestPresigner,
+	getSignedUrl
 } from "@aws-sdk/s3-request-presigner";
 
 // Установка региона Object Storage

@@ -3,7 +3,7 @@ import React, {useEffect, useRef, useState} from 'react'
 import SearchBar from '../../components/SearchBar'
 import {useAppDispatch, useAppSelector} from '../../store/hooks'
 import ThemeAccordionItem from '../../components/ThemeAccordionItem'
-import {getThemes, getThemesIds, setFilters, clearState, Filters} from '../../store/slices/ThemesSlice'
+import {getThemes, getThemesIds, setFilters, clearState, Filters, setSearch} from '../../store/slices/ThemesSlice'
 import LayoutWrapper from '../../components/LayoutWrapper'
 import {SettingsIcon} from '@chakra-ui/icons'
 import {Controller, useForm} from 'react-hook-form'
@@ -46,16 +46,15 @@ const Themes = () => {
     });
 
     const filterSubmit = handleSubmit((data) => {
-      console.log(data)
-      if (data.private === 'false') {
+      if (data.private === 'false' || !data.private) {
         data.private = undefined;
       }
 
       data.type = data.type === 'no' ? undefined : data.type;
 
-      dispatch(clearState())
-      dispatch(setFilters(data))
-      dispatch(getThemesIds({userUid: undefined}))
+      dispatch(clearState());
+      dispatch(setFilters(data));
+      dispatch(getThemesIds({orgId: state.user.userInfo!.organization.id, userUid: undefined}))
         .unwrap()
         .then(() => {
           setIsLoadingThemes(() => true)
@@ -63,9 +62,19 @@ const Themes = () => {
       onClose();
     });
 
+    const searchBarHandler = (search: string) => {
+      dispatch(clearState());
+      dispatch(setSearch(search));
+      dispatch(getThemesIds({orgId: state.user.userInfo!.organization.id, userUid: undefined}))
+        .unwrap()
+        .then(() => {
+          setIsLoadingThemes(() => true)
+        });
+    }
+
     const resetFilters = () => {
       dispatch(clearState());
-      dispatch(getThemesIds({userUid: undefined}))
+      dispatch(getThemesIds({orgId: state.user.userInfo!.organization.id, userUid: undefined}))
         .unwrap()
         .then(() => {
           setIsLoadingThemes(() => true)
@@ -78,14 +87,13 @@ const Themes = () => {
       if (themeListRef && themeListRef.current) {
         themeListRef.current.addEventListener('scroll', scrollHandler);
       }
-      dispatch(getThemesIds({userUid: undefined}))
+      dispatch(getThemesIds({orgId: state.user.userInfo!.organization.id, userUid: undefined}))
         .then(() => {
           setIsLoadingThemes(() => true)
         });
 
       return function() {
         themeListRef.current?.removeEventListener('scroll', scrollHandler);
-        dispatch(clearState());
       }
     }, []);
 
@@ -109,14 +117,12 @@ const Themes = () => {
 
     return (
         <LayoutWrapper>
-          <Flex alignItems={'center'} justifyContent={'center'} h={'100%'} bg={"gray.50"}>
+          <Flex alignItems={'center'} justifyContent={'center'} h={'92vh'} bg={"gray.50"}>
             <Card
               width={'80%'}
               rounded={"lg"}
               bg={useColorModeValue("white", "gray.700")}
               boxShadow={'lg'}
-              marginTop={5}
-              marginBottom={5}
             >
               <CardBody height={'100%'}>
                 <Stack
@@ -125,7 +131,7 @@ const Themes = () => {
                   gap={8}
                 >
                   <Box width={'60%'}>
-                      <SearchBar/>
+                      <SearchBar handler={searchBarHandler}/>
                   </Box>
                   <Card
                     rounded={"lg"}

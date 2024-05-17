@@ -23,7 +23,7 @@ type FormInput = {
 }
 
 const AddRuleModal = ({isOpen, onClose, organizationName}: AddRuleModalProps) => {
-	const {control, watch, handleSubmit} = useForm<FormInput>({
+	const {control, watch, handleSubmit, reset} = useForm<FormInput>({
 		defaultValues: {
 			joinDate: '',
 			realizationFrom: '',
@@ -56,6 +56,9 @@ const AddRuleModal = ({isOpen, onClose, organizationName}: AddRuleModalProps) =>
 			file,
 			organizationId: userInfo!.organization.id
 		}));
+
+		reset();
+		onClose();
 	}
 
 	return (

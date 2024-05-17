@@ -16,7 +16,8 @@ export function getRegisterPayload(formData: FieldValues): RegisterPayload {
 		email: formData.email,
 		password: formData.password,
 		name: formData.name,
-		surname: formData.surname
+		surname: formData.surname,
+		patronymic: formData.patronymic
 	}
 }
 

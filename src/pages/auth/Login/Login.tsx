@@ -11,8 +11,11 @@ import {
   Input,
   Stack,
   useColorModeValue,
-  Button
+  Button,
+  Link,
+  Text
 } from '@chakra-ui/react';
+import {Link as RouterLink} from 'react-router-dom';
 import {FieldValues, useForm} from 'react-hook-form';
 import {getLoginPayload} from '../../../utils/authUtils';
 
@@ -105,6 +108,10 @@ const Login = () => {
                   Войти
                 </Button>
               }
+              <Stack alignItems={'center'} gap={0} fontSize={15}>
+                <Box>Еще нет аккаунта? <Link as={RouterLink} to='/auth/register' color={'blue.400'}>Зарегистрироваться</Link></Box>
+                <Box>Забыли пароль? <Link as={RouterLink} to='/auth/forgot_password' color={'blue.400'}>Восстановить</Link></Box>
+              </Stack>
             </Stack>
           </form>
         </Box>

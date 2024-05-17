@@ -1,10 +1,9 @@
-import {Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Badge, Box, Card, CardBody, Flex, Heading, Stack, Table, Tbody, Td, Th, Thead, Tr, useColorModeValue} from '@chakra-ui/react'
-import React, {useEffect, useRef, useState} from 'react'
+import {Accordion, Box, Card, CardBody, Flex, Heading} from '@chakra-ui/react'
+import React, {useEffect} from 'react'
 import {useAppDispatch, useAppSelector} from '../../store/hooks'
 import ThemeAccordionItem from '../../components/ThemeAccordionItem'
 import {getThemes, getThemesIds} from '../../store/slices/MyThemesSlice'
 import LayoutWrapper from '../../components/LayoutWrapper'
-import {DateTime} from 'luxon'
 import MentorThemesTable from '../../components/MentorThemesTable'
 
 const scrollBarSettings = {
@@ -25,14 +24,14 @@ const MyThemes = () => {
 	const {userInfo} = useAppSelector((state) => state.user);
 
     useEffect(() => {
-		dispatch(getThemesIds({userUid: userInfo!.uid}))
+		dispatch(getThemesIds({orgId: userInfo!.organization.id, userUid: userInfo!.uid}))
 			.then(() => dispatch(getThemes()));
     }, []);
 
     return (
 		<LayoutWrapper>
 			{themes &&  
-				<Flex alignItems={'center'} justifyContent={'center'} h={'100%'} bg={"gray.50"}>
+				<Flex alignItems={'center'} justifyContent={'center'} h={'92vh'} bg={"gray.50"}>
 					<Card
 						rounded={"lg"}
 						bg={"white"}

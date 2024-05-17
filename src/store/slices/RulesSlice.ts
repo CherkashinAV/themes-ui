@@ -38,7 +38,7 @@ export const createRule = createAsyncThunk<Rule, AddRulePayload, {rejectValue: s
 	async (payload, {rejectWithValue, getState}) => {
 		const {userInfo} = (getState() as RootState).user;
 		if (!payload.file) {
-			rejectWithValue('Файл не загружен');
+			return rejectWithValue('Файл не загружен');
 		}
 
 		const s3Name = `${v4()}.${payload.file!.name.split('.')[1]}`;
@@ -54,29 +54,28 @@ export const createRule = createAsyncThunk<Rule, AddRulePayload, {rejectValue: s
 
 			url = await getDownloadLink('project-rules', `${userInfo!.organization.shortName}/${s3Name}`);
 		} catch (error) {
-			rejectWithValue('Ошибка при загрузке файла')
+			return rejectWithValue('Ошибка при загрузке файла')
 		}
 
-		const rule = {
+		const rulePayload = {
 			downloadLink: url!,
 			expirationDate: payload.expirationDate,
 			joinDate: payload.joinDate,
 			realizationDates: payload.realizationDates,
 			title: payload.title,
 			type: payload.type,
-			organization: userInfo!.organization
-		} as Rule;
-
-		const createRuleResult = await themesProvider.createRule({
-			...rule,
 			organizationId: payload.organizationId
-		});
+		};
+
+		
+		const createRuleResult = await themesProvider.createRule(rulePayload);
+		console.log(createRuleResult)
 
 		if (!createRuleResult.ok) {
-			rejectWithValue('Не удалось сохранить регламент');
+			return rejectWithValue('Не удалось сохранить регламент');
 		}
 
-		return rule;
+		return createRuleResult.value;
 	}
 );
 

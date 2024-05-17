@@ -12,6 +12,7 @@ import UpdateTheme from './pages/themes/UpdateTheme';
 import MyThemes from './pages/themes/MyThemes';
 import ProfileView from './pages/profile/ProfileView';
 import Moderation from './pages/Moderation';
+import ResetPassword from './pages/auth/ResetPassword/ResetPassword';
 
 function App() {
   return (
@@ -20,8 +21,10 @@ function App() {
         <Route path='/'/>
         <Route path='auth'>
           <Route path='register' element={<Register/>}/>
+          <Route path='register/:secret' element={<Register/>}/>
           <Route path='login' element={<Login/>}/>
           <Route path='forgot_password' element={<ForgotPassword/>}/>
+          <Route path='reset_password/:userId/:secretCode' element={<ResetPassword/>}/>
         </Route>
         <Route element={<PrivateRoute/>}>
             <Route path='home'/>

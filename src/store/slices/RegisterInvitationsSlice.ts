@@ -1,13 +1,10 @@
 import {PayloadAction, createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {LoginPayload, LoginResponse, authProvider} from '../../providers/auth';
-import {DateInterval, MemberInvitationInfo, Rule, ThemeType} from '../../types';
+import {MemberInvitationInfo, Rule} from '../../types';
 import {RootState} from '..';
 import {themesProvider} from '../../providers/themes';
-import {getDownloadLink, s3Client} from '../../lib/s3';
-import {PutObjectCommand} from '@aws-sdk/client-s3';
-import {v4} from 'uuid';
+import secrets from '../../secrets/secrets.json';
 
-interface LoginState {
+interface RegisterInvitationsState {
 	isFetching: boolean,
 	isSuccess: boolean,
 	isError: boolean,
@@ -16,7 +13,7 @@ interface LoginState {
 	rules: Rule[];
 }
 
-const initialState: LoginState = {
+const initialState: RegisterInvitationsState = {
 	isFetching: false,
 	isSuccess: false,
 	isError: false,
@@ -25,20 +22,11 @@ const initialState: LoginState = {
 	rules: []
 }
 
-interface AddRulePayload{
-	joinDate: string;
-	realizationDates: DateInterval;
-	title: string;
-	type: ThemeType;
-	expirationDate: string;
-	file: File | null;
-	organizationId: number;
-}
-
 export const invite = createAsyncThunk<MemberInvitationInfo[], void, {rejectValue: string}>(
 	'registerInvitations/sendInvitations',
 	async (_, {getState}) => {
 		const state = (getState() as RootState).registerInvitations;
+		const user = (getState() as RootState).user;
 
 		const newInvitations: MemberInvitationInfo[] = [];
 
@@ -47,13 +35,22 @@ export const invite = createAsyncThunk<MemberInvitationInfo[], void, {rejectValu
 				continue;
 			}
 
-			const [name, surname] = invitation.name.split(' ');
+			const [name, surname, patronymic] = invitation.name.split(' ');
 			const inviteResult = await themesProvider.inviteMember({
 				email: invitation.email,
 				name,
 				surname,
+				patronymic,
+				groupName: invitation.groupName,
+				post: invitation.post,
+				organizationName: user.userInfo!.organization.shortName,
 				role: invitation.role === 'Руководитель' ? 'mentor' : 'default',
-				linkToRegisterForm: 'http://localhost:3000/auth/register'
+				linkToRegisterForm: 'http://localhost:3000/auth/register',
+				senderOptions: {
+					email: secrets.senderEmail,
+					emailSecret: secrets.senderEmailSecret,
+					templateUid: '22222222-f625-41ca-a353-068d6ed70fc5'
+				}
 			});
 
 			newInvitations.push({...invitation, status: inviteResult.ok ? 'SENT' : 'ERROR'}); 

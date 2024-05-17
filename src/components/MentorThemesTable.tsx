@@ -18,7 +18,7 @@ const scrollBarSettings = {
 const MentorThemesTable = ({themes}: {themes: Theme[]}) => {
   return (
 	  <Card>
-      <CardBody minHeight={'75vh'} maxHeight={'75vh'} overflowY={'scroll'} paddingTop={0} sx={scrollBarSettings}>
+      <CardBody minH={'60vh'} maxH={'60vh'} overflowY={'scroll'} paddingTop={0} sx={scrollBarSettings}>
         <Grid
           templateColumns='1.5fr 1.5fr 1fr 1fr 1fr'
           position={'sticky'}
@@ -45,8 +45,8 @@ const MentorThemesTable = ({themes}: {themes: Theme[]}) => {
           </GridItem>
         </Grid>
         <Divider />
-        {themes.map((theme) => 
-          <MentorThemeRow theme={theme}/>
+        {themes.map((theme, idx) => 
+          <MentorThemeRow key='idx' theme={theme}/>
         )}
       </CardBody>
     </Card>

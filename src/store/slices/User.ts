@@ -95,6 +95,7 @@ const userSlice = createSlice({
 			.addCase(updateUser.fulfilled, (state, {payload}) => {
 				if (payload && state.userInfo) {
 					state.userInfo.description = payload.description;
+					state.userInfo.skills = payload.skills;
 				}
 				state.isLoading = false;
 			})

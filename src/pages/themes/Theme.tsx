@@ -53,7 +53,7 @@ const Theme = () => {
 		<LayoutWrapper>
 			{isSuccess ?
 				<Flex
-					h={'100%'}
+					h={'92vh'}
 					align={"center"}
 					justify={"center"}
 					bg={"gray.50"}
@@ -62,8 +62,10 @@ const Theme = () => {
 						rounded={"lg"}
 						bg={"white"}
 						boxShadow={"lg"}
-						w={"60%"}
+						w={"80%"}
 						p={8}
+						mt={5}
+						mb={5}
 					>
 						<CardBody>
 							<Stack gap={6}>
@@ -71,48 +73,52 @@ const Theme = () => {
 									justifyContent={'space-between'}
 									alignItems={'center'}
 								>
-									<Flex
-										justifyContent={'flex-start'}
-										gap={5}
-										alignItems={'center'}
-									>
-										<Heading>{data?.title}</Heading>
-										{data!.private &&
-											<Tooltip 
-												label={data!.creator.organization.shortName}
-												hasArrow
-												bg={"gray.400"}
-												color={"white"}
-												placement='top'
-											>
-												<Tag
-													_hover={{transform: 'scale(1.1)'}}
-													width={'fit-content'}
-													height={'fit-content'}
-												>
-													private
-												</Tag>
-											</Tooltip>
-										}
-										<Tag width={'fit-content'}>
-											{projectTypeMapping[data!.type]}
-										</Tag>
-									</Flex>
-									
+									<Heading>{data?.title}</Heading>
+
 									<Badge justifySelf={'flex-end'} colorScheme='orange'>
 										{data!.status}
 									</Badge>
 								</Flex>
+								<Flex
+									justifyContent={'flex-start'}
+									gap={5}
+									alignItems={'center'}
+								>
+									{data!.private &&
+										<Tooltip 
+											label={data!.creator.organization.shortName}
+											hasArrow
+											bg={"gray.400"}
+											color={"white"}
+											placement='top'
+										>
+											<Tag
+												_hover={{transform: 'scale(1.1)'}}
+												width={'fit-content'}
+												height={'fit-content'}
+											>
+												private
+											</Tag>
+										</Tooltip>
+									}
+									<Tag width={'fit-content'}>
+										{projectTypeMapping[data!.type]}
+									</Tag>
+								</Flex>
 								<Flex justifyContent={'space-between'}>
 									<Flex gap={5} alignItems={'center'}>
 										<Heading fontSize={15}>Руководитель проекта</Heading>
-										<Badge colorScheme='purple' padding={1.5}>
-											{data?.approver ?
-												`${data?.approver.surname} ${data?.approver.name}`
-												:
-												`В активном поиске...`
-											}
-										</Badge>
+										{data?.approver ?
+											<Link as={RouterLink} to={`/profile/${data.approver.uid}`}>
+												<Badge colorScheme='blue' padding={1.5}>
+													{data.approver.surname} {data.approver.name} {data.approver?.patronymic ?? ''}
+												</Badge>
+											</Link>
+											:
+											<Badge colorScheme='purple' padding={1.5}>
+												В активном поиске
+											</Badge>
+										}
 										
 									</Flex>
 									
@@ -170,7 +176,7 @@ const Theme = () => {
 													>
 														<Link width={'100%'}>
 															<CardBody>
-																{`${user.surname} ${user.name}`}
+																{`${user.surname} ${user.name} ${user.patronymic ?? ''}`}
 															</CardBody>
 														</Link>
 													</Card>
@@ -208,7 +214,7 @@ const Theme = () => {
 														<CardBody>
 															<Flex alignItems={'center'} justifyContent={'space-between'}>
 																<Link as={RouterLink} to={`/profile/${user.uid}`}>
-																	{`${user.surname} ${user.name}`}
+																	{`${user.surname} ${user.name} ${user.patronymic ?? ''}`}
 																</Link>
 																{isApprover &&
 																	<IconButton 
@@ -233,8 +239,9 @@ const Theme = () => {
 								</Flex>
 
 								<Box>
-									<Heading fontSize={15}>Методические материаллы</Heading>
 									{data!.teachingMaterials &&
+										<>
+										<Heading fontSize={15}>Методические материаллы</Heading>
 										<OrderedList mt={'5'}>
 											{data!.teachingMaterials.map((item) => 
 												<ListItem>
@@ -243,6 +250,7 @@ const Theme = () => {
 												</ListItem>
 											)}
 										</OrderedList>
+										</>
 									}
 								</Box>
 

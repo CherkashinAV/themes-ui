@@ -1,6 +1,6 @@
-import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
+import {PayloadAction, createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {authProvider} from '../../providers/auth';
-import {User} from '../../types';
+import {Rule, User} from '../../types';
 import {MentorResponsePayload, themesProvider} from '../../providers/themes';
 import {RootState} from '..';
 
@@ -13,7 +13,8 @@ interface MentorsState {
 	mentorUids: string[],
 	loadCount: number,
 	lastIndex: number,
-	filters: Record<string, string>
+	filters: Record<string, string>,
+	search: string | null;
 }
 
 const initialState: MentorsState = {
@@ -25,13 +26,15 @@ const initialState: MentorsState = {
 	mentorUids: [],
 	loadCount: 10,
 	lastIndex: 0,
-	filters: {}
+	filters: {},
+	search: null
 }
 
 export const getMentorIds = createAsyncThunk<string[], void, {rejectValue: string}>(
 	'mentor/getMentorIds',
-	async (_, {rejectWithValue}) => {
-		const result = await authProvider.users('mentor');
+	async (_, {rejectWithValue, getState}) => {
+		const state = (getState() as RootState).mentors;
+		const result = await authProvider.users('mentor', state.search ?? undefined);
 
 		if (!result.ok) {
 			return rejectWithValue(result.error.message);
@@ -45,6 +48,7 @@ export const getMentors = createAsyncThunk<{mentors: User[], lastIndex: number},
 	'mentor/getMentors',
 	async (payload: {count?: number}, {rejectWithValue, getState}) => {
 		const {mentorUids, lastIndex, loadCount} = (getState() as RootState).mentors;
+		console.log('here')
 		let to = lastIndex + loadCount;
 		if (payload.count) {
 			to = lastIndex + payload.count;
@@ -59,7 +63,6 @@ export const getMentors = createAsyncThunk<{mentors: User[], lastIndex: number},
 		}
 
 		const fetchIds = mentorUids.slice(lastIndex, to);
-		console.log(lastIndex, to)
 		const result = await Promise.all(fetchIds.map((uid) => themesProvider.getProfile(uid)));
 		const mentors: User[] = [];
 		for (const userResult of result) {
@@ -83,7 +86,11 @@ const mentorSlice = createSlice({
 			state.isFetching = false;
 			state.mentorUids = [];
 			state.mentors = [];
+			state.lastIndex = 0;
 			return state;
+		},
+		setSearch(state, action: PayloadAction<string>) {
+			state.search = action.payload;
 		}
 	},
 	extraReducers: (builder) => {
@@ -105,6 +112,9 @@ const mentorSlice = createSlice({
 				return state;
 			})
 			.addCase(getMentors.fulfilled, (state, {payload}) => {
+				if (state.mentorUids.length === state.mentors.length) {
+					return state;
+				}
 				state.mentors.push(...payload.mentors);
 				state.lastIndex = payload.lastIndex;
 				return state;
@@ -112,6 +122,6 @@ const mentorSlice = createSlice({
 	}
 });
 
-export const {clearState} = mentorSlice.actions;
+export const {clearState, setSearch} = mentorSlice.actions;
 
 export default mentorSlice.reducer;

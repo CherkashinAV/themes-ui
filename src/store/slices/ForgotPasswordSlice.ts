@@ -1,5 +1,6 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {authProvider} from '../../providers/auth';
+import secrets from '../../secrets/secrets.json';
 
 interface ForgotPasswordState {
 	isFetching: boolean,
@@ -20,7 +21,12 @@ export const sendEmail = createAsyncThunk<void, string, {rejectValue: string}>(
 	async (email: string, {rejectWithValue}) => {
 		const result = await authProvider.sendPasswordRestoreLink({
 			email,
-			linkToResetForm: 'http://localhost:3000/auth/reset_password'
+			linkToResetForm: 'http://localhost:3000/auth/reset_password',
+			senderOptions: {
+				email: secrets.senderEmail,
+				emailSecret: secrets.senderEmailSecret,
+				templateUid: '11111111-f625-41ca-a353-068d6ed70fc5'
+			}
 		});
 
 		if (!result.ok) {

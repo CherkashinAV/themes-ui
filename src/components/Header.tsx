@@ -52,7 +52,7 @@ const Header = () => {
 						</ListItem>
 					</Flex>
 				</UnorderedList>
-				<Flex>
+				<Flex zIndex={200}>
 					<Popover
 						placement='bottom'
 					>
@@ -74,16 +74,20 @@ const Header = () => {
 						</PopoverTrigger>
 						<PopoverContent overflowY={'scroll'} sx={scrollBarSettings} maxH={'30vh'}>
 							<Stack gap={3} padding={2}>
-								{notifications.map((notification, idx) => 
-									<Notification key={idx} notification={notification}/>
-								)}
+								{notifications.length ?
+									notifications.map((notification, idx) => 
+										<Notification key={idx} notification={notification}/>
+									)
+									:
+									<Text textAlign={'center'}>Пока нет уведомлений</Text>
+								}
 							</Stack>
 						</PopoverContent>
 						
 					</Popover>
 					<Menu>
 						<MenuButton as={Button} rightIcon={<ChevronDownIcon />} bg={'none'} _hover={{}} _active={{}}>
-							{`${userInfo!.surname} ${userInfo!.name.charAt(0)}.В.`}
+							{`${userInfo!.surname} ${userInfo!.name.charAt(0)}.${userInfo!.patronymic ? userInfo!.patronymic?.charAt(0) + '.' : ''}`}
 						</MenuButton>
 						<MenuList>
 							<MenuItem onClick={() => navigate(`/profile/${userInfo!.uid}`)}>

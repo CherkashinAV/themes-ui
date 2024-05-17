@@ -1,8 +1,13 @@
 import {Search2Icon} from '@chakra-ui/icons'
 import {Button, Card, CardBody, Input, InputGroup, InputLeftElement, InputRightAddon, useColorModeValue} from '@chakra-ui/react'
-import React from 'react'
+import React, {useState} from 'react'
 
-const SearchBar = () => {
+type SearchBarProps = {
+  handler: (search: string) => void 
+}
+
+const SearchBar = ({handler}: SearchBarProps) => {
+  const [search, setSearch] = useState('');
   return (
 	  <Card
       rounded={"lg"}
@@ -21,6 +26,8 @@ const SearchBar = () => {
             placeholder="Поиск"
             border="1px solid #949494"
             borderRadius={10}
+            value={search}
+            onChange={(e) => setSearch(() => e.target.value)}
           />
           <InputRightAddon p={0} border="none">
             <Button
@@ -28,6 +35,7 @@ const SearchBar = () => {
               borderLeftRadius={0}
               borderRightRadius={3.3}
               border="1px solid #949494"
+              onClick={() => handler(search)}
             >
               Искать
             </Button>

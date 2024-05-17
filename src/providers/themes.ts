@@ -1,8 +1,9 @@
-import {AsyncResult, Theme, ThemeType, User,  UserWithDetails, Notification, TeachingMaterial, DateInterval, Rule} from '../types';
+import {AsyncResult, Theme, ThemeType, User,  UserWithDetails, Notification, TeachingMaterial, DateInterval, Rule, OrderData} from '../types';
 import axios, {AxiosResponse, Method} from 'axios';
 import {getFingerPrint} from '../utils/authUtils';
 import {Filters} from '../store/slices/ThemesSlice';
 import {Role} from './auth';
+import {Search} from 'react-router-dom';
 
 export type ThemesErrorStatus = |
 	'UNAUTHORIZED' |
@@ -21,6 +22,7 @@ class ThemesError extends Error {
 
 export type UpdateProfilePayload = {
 	description: string;
+	skills: string[];
 }
 
 export type CreateThemePayload = {
@@ -32,7 +34,8 @@ export type CreateThemePayload = {
 	teachingMaterials: TeachingMaterial[] | null,
 	joinDate: string,
 	realizationDates: DateInterval,
-	private: boolean
+	private: boolean,
+	ruleId: number | null
 }
 
 export type CreateThemeResponse = {
@@ -55,12 +58,13 @@ export type UpdateThemePayload = {
 	joinDate: string,
 	realizationDates: DateInterval,
 	executorsCount: number,
-	type: ThemeType
+	type: ThemeType,
+	ruleId: number | null;
 }
 
 export type InviteMentorPayload = {
-	themeId: number,
-	mentorUid: string
+	themeId: number;
+	mentorUid: string;
 }
 
 export type MentorResponsePayload = {
@@ -73,8 +77,17 @@ export type InviteMemberPayload = {
 	email: string;
 	name: string;
 	surname: string;
+	patronymic?: string;
+	organizationName: string;
+	post?: string | null;
+	groupName?: string | null;
 	role: Role;
 	linkToRegisterForm: string;
+	senderOptions: {
+		email: string;
+		emailSecret: string;
+		templateUid: string;
+	}
 };
 
 export type CreateRulePayload = {
@@ -86,6 +99,11 @@ export type CreateRulePayload = {
 	downloadLink: string;
 	organizationId: number;
 };
+
+export type CreateRuleResult = {
+	status: 'OK',
+	data: Rule
+} 
 
 class ThemesProvider {
 	private _baseUrl: string;
@@ -273,7 +291,7 @@ class ThemesProvider {
 		}
 	}
 
-	async getThemes(userUid?: string, filters?: Filters): AsyncResult<number[], ThemesError> {
+	async getThemes(orgId: number, userUid?: string, filters?: Filters, search?: string): AsyncResult<number[], ThemesError> {
 		let filtersDict: Record<string, string> = {};
 
 		for (const [key, value] of Object.entries(filters ?? {})) {
@@ -288,7 +306,9 @@ class ThemesProvider {
 			method: 'get',
 			query: {
 				userId: userUid,
-				...filtersDict
+				...filtersDict,
+				search,
+				orgId: orgId.toString()
 			}
 		});
 
@@ -386,8 +406,8 @@ class ThemesProvider {
 		}
 	}
 
-	async createRule(payload: CreateRulePayload): AsyncResult<null, ThemesError> {
-		const result = await this._request({
+	async createRule(payload: CreateRulePayload): AsyncResult<Rule, ThemesError> {
+		const result = await this._request<CreateRuleResult>({
 			path: 'admin/create_rule',
 			method: 'post',
 			body: payload
@@ -399,7 +419,7 @@ class ThemesProvider {
 
 		return {
 			ok: true,
-			value: null
+			value: result.value.data.data
 		}
 	}
 
@@ -408,6 +428,23 @@ class ThemesProvider {
 			path: 'admin/rules',
 			method: 'get',
 			query: {organizationId: String(organizationId)}
+		});
+
+		if (!result.ok) {
+			return result;
+		}
+
+		return {
+			ok: true,
+			value: result.value.data
+		}
+	}
+
+	async getOrderData(ruleId: number): AsyncResult<OrderData, ThemesError> {
+		const result = await this._request<OrderData>({
+			path: 'admin/order_data',
+			method: 'get',
+			query: {ruleId: ruleId.toString()}
 		});
 
 		if (!result.ok) {

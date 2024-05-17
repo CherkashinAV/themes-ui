@@ -34,10 +34,10 @@ const initialState: ThemesState = {
 	themeIds: [],
 }
 
-export const getThemesIds = createAsyncThunk<number[], {userUid: string | undefined}, {rejectValue: string}>(
+export const getThemesIds = createAsyncThunk<number[], {orgId: number, userUid: string | undefined}, {rejectValue: string}>(
 	'myThemes/getIds',
-	async (payload: {userUid?: string}, {rejectWithValue}) => {
-		const result = await themesProvider.getThemes(payload.userUid);
+	async (payload: {orgId: number, userUid?: string}, {rejectWithValue}) => {
+		const result = await themesProvider.getThemes(payload.orgId, payload.userUid);
 
 		if (!result.ok) {
 			return rejectWithValue(result.error.message);
@@ -89,7 +89,17 @@ export const getThemes = createAsyncThunk<Theme[], void, {rejectValue: string}>(
 			themes.push(themeResult.value);
 		}
 
-		return themes;
+		return themes.sort((a, b) => {
+			if (a.executorsGroup.participants < b.executorsGroup.participants) {
+				return 1;
+			}
+
+			if (a.joinRequests.length < b.joinRequests.length) {
+				return 1;
+			}
+
+			return -1;
+		});
 	}
 );
 

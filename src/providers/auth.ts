@@ -9,6 +9,7 @@ export type RegisterPayload = {
 	{
 		name: string;
 		surname: string;
+		patronymic?: string;
 	} |
 	{
 		invitationCode: string;
@@ -29,6 +30,11 @@ export type LoginResponse = {
 export type SendPasswordRestoreLinkPayload = {
 	email: string;
 	linkToResetForm: string;
+	senderOptions: {
+        email: string;
+        emailSecret: string;
+        templateUid: string;
+    }
 }
 
 export type ResetPasswordPayload = {
@@ -108,7 +114,7 @@ class AuthProvider {
 		method: Method;
 		accessToken?: string;
 		body?: Record<string, unknown>
-		query?: Record<string, string>
+		query?: Record<string, string | undefined>
 	}): AsyncResult<AxiosResponse<T>, AuthError> {
 		const requestUrl = new URL(args.path, this._baseUrl);
 		if (this._fingerprint === '') {
@@ -256,12 +262,12 @@ class AuthProvider {
 		}
 	}
 
-	async users(role: string): AsyncResult<string[], AuthError> {
+	async users(role: string, search?: string): AsyncResult<string[], AuthError> {
 		const accessToken = localStorage.getItem('accessToken') ?? '';
 		const result = await this._request<UsersResponse>({
 			path: 'users',
 			method: 'GET',
-			query: {partition: this._partition, role},
+			query: {partition: this._partition, role, search},
 			accessToken: accessToken
 		});
 

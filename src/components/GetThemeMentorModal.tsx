@@ -7,7 +7,7 @@ import {getThemes, getThemesIds} from '../store/slices/ThemesSlice'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Theme} from '../types'
 import MentorAccordionItem from './MentorAccordionItem'
-import {clearState, getMentorIds, getMentors} from '../store/slices/MentorSlice'
+import {clearState, getMentorIds, getMentors, setSearch} from '../store/slices/MentorSlice'
 
 const scrollBarSettings = {
 	'&::-webkit-scrollbar': {
@@ -28,7 +28,7 @@ type GetThemeMentorModalProps = {
 }
 
 const GetThemeMentorModal = ({theme, isOpen, onClose}: GetThemeMentorModalProps) => {
-	  const navigate = useNavigate();
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
 	  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
     const state = useAppSelector((state) => state);
@@ -48,17 +48,27 @@ const GetThemeMentorModal = ({theme, isOpen, onClose}: GetThemeMentorModalProps)
       }
     }, []);
 
+    const searchBarHandler = (search: string) => {
+      dispatch(clearState());
+      dispatch(setSearch(search));
+      dispatch(getMentorIds())
+        .unwrap()
+        .then(() => {
+          setIsLoadingUsers(() => true)
+        });
+    }
+
     useEffect(() => {
       if (isLoadingUsers) {
         dispatch(getMentors({count: undefined}))
           .unwrap()
-          .then(() => setIsLoadingUsers(true))
+          .then(() => setIsLoadingUsers(() => false))
       }
     }, [isLoadingUsers]);
 
     const scrollHandler = (e: any) => {
       if (e.currentTarget.scrollHeight - (e.currentTarget.scrollTop + e.currentTarget.clientHeight) < 5) {
-        setIsLoadingUsers(true);
+        setIsLoadingUsers(() => true);
         console.log('true')
       }
     }
@@ -72,37 +82,26 @@ const GetThemeMentorModal = ({theme, isOpen, onClose}: GetThemeMentorModalProps)
     return (
       <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
-      <ModalContent minW={'80vw'} minH={'80vh'} maxHeight={'80vh'}>
-        <ModalHeader>Список возможных рукроводителей</ModalHeader>
+      <ModalContent minW={'80vw'} minH={'80vh'} maxHeight={'80vh'} h={'80vh'}>
+        <ModalHeader>Список возможных руководителей</ModalHeader>
         <ModalCloseButton />
-        <ModalBody>
+        <ModalBody h={'100%'}>
             <Stack
               w={"100%"}
               alignItems={'center'}
               gap={8}
             >
               <Box width={'60%'}>
-                  <SearchBar/>
+                  <SearchBar handler={searchBarHandler}/>
               </Box>
-              <Card
-                rounded={"lg"}
-                bg={useColorModeValue("white", "gray.700")}
-                width={'100%'}
-                boxShadow={'md'}
-                p={8}
-                height={'60vh'}
-              >
-                <CardBody height={'100%'}>
-                  <Box marginTop={8} ref={mentorListRef} overflowY={'scroll'} sx={scrollBarSettings} height={'100%'}>
-                    <Accordion allowMultiple>
-                      {state.mentors.mentors.map((mentor) =>
-                        <MentorAccordionItem user={mentor} themeId={theme.id} key={mentor.uid}/>
-                      )}
-                    </Accordion>
-                  </Box>
-                </CardBody>
-              </Card>
           </Stack>
+          <Box marginTop={8} ref={mentorListRef} overflowY={'scroll'} sx={scrollBarSettings} height={'80%'} w={'100%'}>
+                <Accordion allowMultiple>
+                  {state.mentors.mentors.map((mentor) =>
+                    <MentorAccordionItem user={mentor} themeId={theme.id} key={mentor.uid}/>
+                  )}
+                </Accordion>
+              </Box>
         </ModalBody>
       </ModalContent>
     </Modal>

@@ -50,7 +50,7 @@ const MentorThemeRow = ({theme}: {theme: Theme}) => {
           <Stack w={'100%'} h={'100%'}>
             {executors.map((user) => 
               <Flex h={'100%'} w={'100%'} alignItems={'center'} justifyContent={'center'}>
-                <Link as={RouterLink} to={`/profile/${user.uid}`}>{`${user.name} ${user.surname}`}</Link>
+                <Link as={RouterLink} to={`/profile/${user.uid}`}>{`${user.surname} ${user.name} ${user.patronymic ?? ''}`}</Link>
               </Flex>
             )}
           </Stack>
@@ -76,7 +76,7 @@ const MentorThemeRow = ({theme}: {theme: Theme}) => {
             )}
             {theme.joinRequests.map(({requestDateTime}) =>
               <Flex h={'100%'} w={'100%'} alignItems={'center'} justifyContent={'center'}>
-                <Text h={'100%'} w={'100%'}>{DateTime.fromISO(requestDateTime).toLocaleString(DateTime.DATETIME_SHORT)}</Text>
+                <Text h={'100%'} w={'100%'} height={'fit-content'}>{DateTime.fromISO(requestDateTime).toLocaleString(DateTime.DATETIME_SHORT)}</Text>
               </Flex>
             )}
           </Stack>

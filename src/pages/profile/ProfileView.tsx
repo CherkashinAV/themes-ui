@@ -36,6 +36,7 @@ const ProfileView = () => {
 			{state.currentProfile ?
 				<Flex
 					h={'100%'}
+					minH={'92vh'}
 					align={"center"}
 					justify={"center"}
 					bg={"gray.50"}
@@ -44,8 +45,8 @@ const ProfileView = () => {
 						rounded={"lg"}
 						bg={"white"}
 						boxShadow={"lg"}
-						w={"90%"}
-						h={'90%'}
+						w={"70%"}
+						h={'100%'}
 						p={8}
 					>
 						<CardBody>
@@ -75,7 +76,7 @@ const ProfileView = () => {
 										<Text
 											fontSize="1.5rem"
 										>
-											{state.currentProfile!.surname + " " + state.currentProfile!.name}
+											{state.currentProfile!.surname + " " + state.currentProfile!.name + ' ' + state.currentProfile!.patronymic}
 										</Text>
 										<Link as={RouterLink} to="/profile">
 											<Tooltip 
@@ -110,6 +111,22 @@ const ProfileView = () => {
 									<Stack mt={"1.5rem"}>
 										<Heading fontSize={"1.5rem"}>Обо мне</Heading>
 										<Text>{state.currentProfile.description === '' ? 'Здесь пока ничего нет' : state.currentProfile.description}</Text>
+									</Stack>
+
+									<Stack mt={"1.5rem"}>
+										<Heading fontSize={"1.5rem"}>Навыки</Heading>
+										<Flex gap='2'>
+											{state.currentProfile.skills?.length ? 
+												state.currentProfile.skills.map((skill) => 
+													<Tag key={skill} colorScheme='blue'>
+														<Flex gap={2} alignItems={'center'}>
+															<Text>{skill}</Text>
+														</Flex>
+													</Tag>)
+												:
+												<Text>Навыки пока не добавлены</Text>
+											}
+										</Flex>
 									</Stack>
 									
 								</Stack>

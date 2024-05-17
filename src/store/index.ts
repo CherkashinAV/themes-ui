@@ -14,6 +14,7 @@ import mentorsReducer from './slices/MentorSlice'
 import notificationsReducer from './slices/NotificationSlice';
 import registerInvitationsReducer from './slices/RegisterInvitationsSlice';
 import rulesReducer from './slices/RulesSlice';
+import orderReducer from './slices/OrderSlice'
 
 export const store = configureStore({
 	reducer: {
@@ -31,7 +32,8 @@ export const store = configureStore({
 		mentors: mentorsReducer,
 		notifications: notificationsReducer,
 		registerInvitations: registerInvitationsReducer,
-		rules: rulesReducer
+		rules: rulesReducer,
+		order: orderReducer
 	}
 });
 

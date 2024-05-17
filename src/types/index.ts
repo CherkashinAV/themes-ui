@@ -34,11 +34,15 @@ export type Organization = {
 export type User = {
 	name: string;
 	surname: string;
+	patronymic?: string;
 	email: string;
 	role: Role;
 	uid: string;
 	description: string;
-	organization: Organization
+	organization: Organization;
+	post: string | null;
+	groupName: string | null;
+	skills: string[];
 }
 
 export type UserDetails = {
@@ -87,6 +91,7 @@ export type Theme = {
 	joinRequests: {user: UserWithDetails, requestDateTime: string}[];
 	createdAt: string;
 	updatedAt: string;
+	ruleId: number;
 }
 
 export type NotificationType = 'INVITE_MENTOR' | 'MENTOR_RESPONSE' | 'THEME_STATUS';
@@ -104,10 +109,13 @@ export type MemberInvitationInfo = {
 	name: string;
 	email: string;
 	role: string;
+	post: string | null;
+	groupName: string | null;
 	status: 'NOT_SENT' | 'SENT' | 'ERROR';
 }
 
 export type Rule = {
+	id: number;
 	joinDate: string;
 	realizationDates: DateInterval;
 	title: string;
@@ -125,6 +133,15 @@ type ErrorResult<T = string> = {
 	ok: false,
 	error: T
 };
+
+export type OrderData = Record<string, {
+	executorName: string,
+	head: {
+		name: string,
+		post: string
+	},
+	themeTitle: string
+}[]>
 
 export type Result<T, E> = OkResult<T> | ErrorResult<E>;
 export type AsyncResult<T, E> = Promise<Result<T, E>>;

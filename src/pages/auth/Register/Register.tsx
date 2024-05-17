@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {clearState} from '../../../store/slices/SignUpSlice';
 import {useAppDispatch, useAppSelector} from '../../../store/hooks';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import {
   Box,
   Flex,
@@ -16,8 +16,9 @@ import {
   Stack,
   useColorModeValue,
   Checkbox,
-  Spinner
+  Link
 } from '@chakra-ui/react';
+import {Link as RouterLink} from 'react-router-dom';
 import {ViewIcon, ViewOffIcon} from "@chakra-ui/icons";
 import {FieldValues, useForm} from 'react-hook-form';
 import {getRegisterPayload} from '../../../utils/authUtils';
@@ -25,6 +26,7 @@ import {signUp} from '../../../store/slices/SignUpSlice';
 
 
 const Register = () => {
+  const {secret} = useParams();
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setChecked] = useState(true);
   const dispatch = useAppDispatch();
@@ -117,24 +119,32 @@ const Register = () => {
                 <Box>
                   <FormControl id="invitationCode" isRequired>
                     <FormLabel>Код приглашения</FormLabel>
-                    <Input type="text" {...register('invitationCode', {required: true})}/>
+                    <Input type="text" {...register('invitationCode', {required: true})} defaultValue={secret ?? ''}/>
                   </FormControl>
                 </Box> 
                   :
-                <HStack>
+                <Stack>
+                  <Flex gap={3}>
+                    <Box>
+                      <FormControl id="name" isRequired>
+                        <FormLabel>Имя</FormLabel>
+                        <Input type="text" {...register('name', {required: true})}/>
+                      </FormControl>
+                    </Box>
+                    <Box>
+                      <FormControl id="surname" isRequired>
+                        <FormLabel>Фамилия</FormLabel>
+                        <Input type="text" {...register('surname', {required: true})}/>
+                      </FormControl>
+                    </Box>
+                  </Flex>
                   <Box>
-                    <FormControl id="name" isRequired>
-                      <FormLabel>Имя</FormLabel>
-                      <Input type="text" {...register('name', {required: true})}/>
+                    <FormControl id="patronymic" isRequired>
+                      <FormLabel>Отчество</FormLabel>
+                      <Input type="text" placeholder='При наличии' {...register('patronymic', {required: false})}/>
                     </FormControl>
                   </Box>
-                  <Box>
-                    <FormControl id="surname" isRequired>
-                      <FormLabel>Фамилия</FormLabel>
-                      <Input type="text" {...register('surname', {required: true})}/>
-                    </FormControl>
-                  </Box>
-                </HStack>
+                </Stack>
                 }
               
               <Stack spacing={10} pt={2}>
@@ -165,6 +175,9 @@ const Register = () => {
                   Зарегистрироваться
                 </Button>
               }
+              </Stack>
+              <Stack alignItems={'center'} gap={0} fontSize={15}>
+                <Box>Уже есть аккаунт? <Link as={RouterLink} to='/auth/login' color={'blue.400'}>Войти</Link></Box>
               </Stack>
             </Stack>
           </form>

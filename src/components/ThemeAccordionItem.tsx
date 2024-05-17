@@ -58,7 +58,7 @@ const ThemeAccordionItem = ({theme}: {theme: Theme}) => {
 							<Heading fontSize={13}>Руководитель проекта</Heading>
 							<Badge fontSize={12} colorScheme={'blue'} textTransform={'none'}>
 								{theme.approver ?
-									theme.approver.name + ' ' + theme.approver.surname :
+									theme.approver.surname + ' ' + theme.approver.name + ' ' + theme.approver.patronymic :
 									'Пока нет'
 								}
 							</Badge>
@@ -95,12 +95,12 @@ const ThemeAccordionItem = ({theme}: {theme: Theme}) => {
 						{theme.shortDescription}
 					</Text>
 					<Flex alignItems={'center'} gap={3} marginTop={5}>
-						{userInfo!.uid === theme.creator.uid && !theme.approver &&
+						{userInfo!.uid === theme.creator.uid && !theme.approver&&
 							<>
 								<Button onClick={onOpen} width={'fit-content'} fontSize={12} colorScheme={'blue'} padding={2}>
 									Найти руководителя
 								</Button>
-								<GetThemeMentorModal theme={theme} isOpen={isOpen} onClose={onClose}/>
+								{isOpen && <GetThemeMentorModal theme={theme} isOpen={isOpen} onClose={onClose}/>}
 							</>
 						}
 						<Link
